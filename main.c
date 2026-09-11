@@ -83,6 +83,71 @@ void encrypt_caesar_shift(char *msg) {
     printf("%s\n", msg);
 }
 
+void VGN_encript(char *msg) {
+    int i, j, k, imsg, ikey, tmp;
+    char key[26], enc[26];
+    printf("key: ");
+    scanf("%s", key);
+
+    k = 0;
+    for (int i = 0; i < strlen(msg); i++) {
+        for (int j = 0; j < 26; j++) {
+            if (msg[i] == letters[j]) {
+                imsg=j;
+            }
+            if (key[k] == letters[j]) {
+                ikey=j;
+            }
+        }
+        if (imsg+ikey < strlen(letters)) {
+            tmp=imsg+ikey;
+            enc[i] = letters[tmp];
+        }
+        else {
+            tmp=imsg+ikey-strlen(letters);
+            enc[i] = letters[tmp];
+        }
+        if (k==strlen(key)-1)
+            k=0;
+        else
+            k++;
+    }
+    printf("%s\n", enc);
+}
+
+void VGN_decript() {
+    int i, j, k, imsg, ikey, tmp;
+    char key[26], enc[26];
+    printf("key: ");
+    scanf("%s", key);
+
+    k = 0;
+    for (int i = 0; i < strlen(msg); i++) {
+        for (int j = 0; j < 26; j++) {
+            if (msg[i] == letters[j]) {
+                imsg=j;
+            }
+            if (key[k] == letters[j]) {
+                ikey=j;
+            }
+        }
+        if (imsg+ikey < strlen(letters)) {
+            tmp=imsg+ikey;
+            enc[i] = letters[tmp];
+        }
+        else {
+            tmp=imsg+ikey-strlen(letters);
+            enc[i] = letters[tmp];
+        }
+        if (k==strlen(key)-1)
+            k=0;
+        else
+            k++;
+    }
+    printf("%s\n", enc);
+
+}
+
 // Обычная расшифровка Цезаря (числовой сдвиг)
 void decrypt_caesar_shift(char *msg) {
     int key;
@@ -130,6 +195,10 @@ int main(int argc, char *argv[]) {
         encrypt_caesar_keyword(msg);
     } else if (strcmp(opt, "-Dcsk") == 0) {
         decrypt_caesar_keyword(msg);
+    } else if (strcmp(opt, "-Evge") == 0) {
+        VGN_encript(msg);
+    } else if (strcmp(opt, "-Dvge") == 0) {
+        VGN_decript(msg);
     } else {
         fprintf(stderr, "%s: unknown option '%s'\n", argv[0], opt);
         exit(3);
