@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "include/globals.h"
+#include "include/fileReader.h"
 
 char LETTERS[] = "abcdefghijklmnopqrstuvwxyz";
 
@@ -44,7 +45,10 @@ int main(int argc, char *argv[]) {
         VGN_encript(msg);
     } else if (strcmp(opt, "-Dvgn") == 0) {
         VGN_decript(msg);
-    } else {
+    } else if (strcmp(opt, "-F") == 0) {
+        printf("%s\n", fileRead(msg));
+    }
+    else {
         fprintf(stderr, "%s: unknown option '%s'\n", argv[0], opt);
         exit(3);
     }
