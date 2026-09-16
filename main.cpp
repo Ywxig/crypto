@@ -3,20 +3,22 @@
 
 #include "include/globals.h"
 #include "include/file.h"
+#include "include/colorise.hpp"
 
 char LETTERS[] = "abcdefghijklmnopqrstuvwxyz";
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <option> <message>\n"
-                  << "Options:\n"
-                  << "  -Ecsr  Encrypt (Caesar Shift)\n"
-                  << "  -Dcsr  Decrypt (Caesar Shift)\n"
-                  << "  -Ecsk  Encrypt (Caesar Keyword)\n"
-                  << "  -Dcsk  Decrypt (Caesar Keyword)\n"
-                  << "  -Evgn  Encrypt (Vigenere)\n"
-                  << "  -Dvgn  Decrypt (Vigenere)\n"
-                  << "  -F     Read file\n";
+
+        std::cout << echo("Usage: " + std::string(argv[0]) + " <option> <message>\n"
+             "Options:\n"
+             " <yellow> -Ecsr <reset> Encrypt (Caesar Shift)\n"
+             " <yellow> -Dcsr <reset> Decrypt (Caesar Shift)\n"
+             " <yellow> -Ecsk <reset> Encrypt (Caesar Keyword)\n"
+             " <yellow> -Dcsk <reset> Decrypt (Caesar Keyword)\n"
+             " <yellow> -Evgn <reset> Encrypt (Vigenere)\n"
+             " <yellow> -Dvgn <reset> Decrypt (Vigenere)\n"
+             " <yellow> -F <reset> Read file\n");
         exit(1);
     }
 

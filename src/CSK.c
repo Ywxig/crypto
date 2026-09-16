@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../include/globals.h"
+#include "../include/colorise.h"
 
 // Генерация алфавита по ключевому слову
 char *caesar_with_key() {
@@ -42,7 +43,9 @@ void encrypt_caesar_keyword(char *msg) {
             }
         }
     }
-    printf("%s\n", msg);
+    char buffer[512];
+    snprintf(buffer, sizeof(buffer), "<yellow> Encrypted: <reset> %s", msg);
+    c_print_colored(buffer);
 }
 
 // Расшифровка Цезаря с ключевым словом
@@ -60,5 +63,7 @@ void decrypt_caesar_keyword(char *msg) {
             }
         }
     }
-    printf("%s\n", msg);
+    char buffer[512];
+    snprintf(buffer, sizeof(buffer), "<yellow> Decrypted: <reset> %s", msg);
+    c_print_colored(buffer);
 }

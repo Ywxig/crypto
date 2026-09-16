@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../include/globals.h"
+#include "../include/colorise.h"
 
 // Обычная расшифровка Цезаря (числовой сдвиг)
 void decrypt_caesar_shift(char *msg) {
@@ -21,7 +22,9 @@ void decrypt_caesar_shift(char *msg) {
             }
         }
     }
-    printf("%s\n", msg);
+    char buffer[512];
+    snprintf(buffer, sizeof(buffer), "<yellow> Decrypted: <reset> %s", msg);
+    c_print_colored(buffer);
 }
 
 // Обычное шифрование Цезаря (числовой сдвиг)
@@ -43,5 +46,7 @@ void encrypt_caesar_shift(char *msg) {
             }
         }
     }
-    printf("%s\n", msg);
+    char buffer[512];
+    snprintf(buffer, sizeof(buffer), "<yellow> Encrypted: <reset> %s", msg);
+    c_print_colored(buffer);
 }

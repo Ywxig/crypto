@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../include/globals.h"
+#include "../include/colorise.h"
 
 void VGN_encript(char *msg) {
     int k, imsg = 0, ikey = 0, tmp;
@@ -32,7 +33,9 @@ void VGN_encript(char *msg) {
         k = (k == (int)key_len - 1) ? 0 : k + 1;
     }
     enc[msg_len] = '\0';
-    printf("%s\n", enc);
+    char buffer[512];
+    snprintf(buffer, sizeof(buffer), "<yellow> Encrypted: <reset> %s", enc);
+    c_print_colored(buffer);
 }
 
 void VGN_decript(char *msg) {
@@ -66,5 +69,7 @@ void VGN_decript(char *msg) {
         k = (k == (int)key_len - 1) ? 0 : k + 1;
     }
     enc[msg_len] = '\0';
-    printf("%s\n", enc);
+    char buffer[512];
+    snprintf(buffer, sizeof(buffer), "<yellow> Decrypted: <reset> %s", enc);
+    c_print_colored(buffer);
 }
