@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -Wall -Wextra -Iinclude
 
 TARGET = dist/main
-SRC = main.cpp src/CSR.c src/CSK.c src/VGN.c helpers/file.cpp
+SRC = main.cpp src/CSR.c src/CSK.c src/VGN.c helpers/file.cpp helpers/utils.cpp helpers/colorise.cpp
 
 all: $(TARGET)
 
