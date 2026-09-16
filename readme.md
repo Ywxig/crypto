@@ -17,6 +17,9 @@ make
 make clean && make
 ```
 
+> [!TIP]
+> готовый билд под Linux хранится в `dist/main`
+
 ---
 
 ## Алгоритмы
