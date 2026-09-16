@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
 
-TARGET = main
+TARGET = dist/main
 SRC = main.c src/CSR.c src/CSK.c src/VGN.c
 
 all: $(TARGET)
