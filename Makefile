@@ -1,8 +1,8 @@
-CC = gcc
+CC = g++
 CFLAGS = -Wall -Wextra -Iinclude
 
 TARGET = dist/main
-SRC = main.c src/CSR.c src/CSK.c src/VGN.c helpers/fileReader.c
+SRC = main.cpp src/CSR.c src/CSK.c src/VGN.c helpers/file.cpp
 
 all: $(TARGET)
 

@@ -1,6 +1,10 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Общий глобальный массив
 extern char LETTERS[];
 
@@ -15,5 +19,9 @@ void decrypt_caesar_keyword(char *msg);
 // Прототипы функций из VGN.c
 void VGN_encript(char *msg);
 void VGN_decript(char *msg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
