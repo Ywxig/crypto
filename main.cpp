@@ -23,6 +23,20 @@ int main(int argc, char *argv[]) {
     }
 
     std::string opt = argv[1];
+    std::string msg_str = "";
+    char *msg = nullptr;
+    std::string alg = "";
+    std::string file = "";
+    if (argc > 3) {
+        alg = argv[2];
+        file = argv[3];
+    } else if (argc > 2) {
+        // Для C-функций, принимающих char*, берем .data() или c_str()
+        // Обратите внимание: если функции модифицируют строку на месте, нужно передавать неконстантный указатель.
+        // Используем константную копию или преобразуем в неконстантный чар, если функции Си мутируют строку.
+        msg_str = argv[2];
+        msg = msg_str.data();
+    }
 
     if (opt == "-v") {
         std::cout << "v1.0.0\n";
@@ -34,11 +48,6 @@ int main(int argc, char *argv[]) {
         exit(2);
     }
 
-    // Для C-функций, принимающих char*, берем .data() или c_str()
-    // Обратите внимание: если функции модифицируют строку на месте, нужно передавать неконстантный указатель.
-    // Используем константную копию или преобразуем в неконстантный чар, если функции Си мутируют строку.
-    std::string msg_str = argv[2];
-    char *msg = msg_str.data();
 
     if (opt == "-Ecsr") {
         encrypt_caesar_shift(msg);
@@ -53,8 +62,24 @@ int main(int argc, char *argv[]) {
     } else if (opt == "-Dvgn") {
         VGN_decript(msg);
     } else if (opt == "-F") {
-        std::string content = fileRead(argv[2]);
-        std::cout << content << "\n";
+
+        if (alg == "Ecsr") {
+            encrypt_caesar_shift(fileRead(file).data());
+        } else if (alg == "Dcsr") {
+            decrypt_caesar_shift(fileRead(file).data());
+        } else if (alg == "Ecsk") {
+            encrypt_caesar_keyword(fileRead(file).data());
+        } else if (alg == "Dcsk") {
+            decrypt_caesar_keyword(fileRead(file).data());
+        } else if (alg == "Evgn") {
+            VGN_encript(fileRead(file).data());
+        } else if (alg == "Dvgn") {
+            VGN_decript(fileRead(file).data());
+        } else {
+            std::cerr << argv[0] << ": unknown algorithm '" << alg << "'\n";
+            exit(3);
+        }
+
     } else {
         std::cerr << argv[0] << ": unknown option '" << opt << "'\n";
         exit(3);
