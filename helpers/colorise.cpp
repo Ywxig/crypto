@@ -77,15 +77,3 @@ extern "C" {
         std::cout << final_output << std::endl;
     }
 }
-
-// extern "C" {
-//     // Функция для вызова из C-алгоритма.
-//     // Принимает const char*, сама вызывает твой C++ echo и печатает результат в stdout.
-//     void c_print_colored(const char* message) {
-//         if (!message) return;
-//         // Вызываем твою C++ функцию echo
-//         std::string formatted = echo(std::string(message));
-//         // Выводим через C++ поток
-//         std::cout << formatted << std::endl;
-//     }
-// }
