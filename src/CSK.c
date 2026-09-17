@@ -43,9 +43,7 @@ void encrypt_caesar_keyword(char *msg) {
             }
         }
     }
-    char buffer[512];
-    snprintf(buffer, sizeof(buffer), "<yellow> Encrypted: <reset> %s", msg);
-    c_print_colored(buffer);
+    c_print_format("<yellow> Encrypted: <reset> %s", msg);
 }
 
 // Расшифровка Цезаря с ключевым словом
@@ -63,7 +61,5 @@ void decrypt_caesar_keyword(char *msg) {
             }
         }
     }
-    char buffer[512];
-    snprintf(buffer, sizeof(buffer), "<yellow> Decrypted: <reset> %s", msg);
-    c_print_colored(buffer);
+    c_print_format("<yellow> Decrypted: <reset> %s", msg);
 }

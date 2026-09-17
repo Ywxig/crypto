@@ -81,10 +81,14 @@ make clean && make
 // C++ пример:
 std::cout << echo("Это <red> красный <reset> текст, а это <yellow> жёлтый");
 ```
+> [!NOTE]
+> Для форматированного вывода доступна функция `c_print_format(const char* format, ...)`. это парсер который сам парсит строку и заменяет цвета на ANSI-коды
 ```c
 // C пример:
-c_print_colored("Это <green> зелёный <reset> текст");
+c_print_format("Это <green> зелёный <reset> текст");
 ```
+
+
 
 ---
 

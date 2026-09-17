@@ -2,11 +2,16 @@
 #define GLOBALS_H
 
 #ifdef __cplusplus
+
+
 extern "C" {
 #endif
 
 // Общий глобальный массив
 extern char LETTERS[];
+
+// функция для вывода с цыктом из c_halp.c
+extern char* cout();
 
 // Прототипы функций из CSR.c
 void encrypt_caesar_shift(char *msg);

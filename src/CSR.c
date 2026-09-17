@@ -24,7 +24,7 @@ void decrypt_caesar_shift(char *msg) {
     }
     char buffer[512];
     snprintf(buffer, sizeof(buffer), "<yellow> Decrypted: <reset> %s", msg);
-    c_print_colored(buffer);
+    c_print_format("<yellow> Decrypted: <reset> %s", msg);
 }
 
 // Обычное шифрование Цезаря (числовой сдвиг)
@@ -48,5 +48,5 @@ void encrypt_caesar_shift(char *msg) {
     }
     char buffer[512];
     snprintf(buffer, sizeof(buffer), "<yellow> Encrypted: <reset> %s", msg);
-    c_print_colored(buffer);
+    c_print_format("<yellow> Encrypted: <reset> %s", msg);
 }

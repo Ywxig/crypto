@@ -33,9 +33,7 @@ void VGN_encript(char *msg) {
         k = (k == (int)key_len - 1) ? 0 : k + 1;
     }
     enc[msg_len] = '\0';
-    char buffer[512];
-    snprintf(buffer, sizeof(buffer), "<yellow> Encrypted: <reset> %s", enc);
-    c_print_colored(buffer);
+    c_print_format("<yellow> Encrypted: <reset> %s", enc);
 }
 
 void VGN_decript(char *msg) {
@@ -69,7 +67,5 @@ void VGN_decript(char *msg) {
         k = (k == (int)key_len - 1) ? 0 : k + 1;
     }
     enc[msg_len] = '\0';
-    char buffer[512];
-    snprintf(buffer, sizeof(buffer), "<yellow> Decrypted: <reset> %s", enc);
-    c_print_colored(buffer);
+    c_print_format("<yellow> Decrypted: <reset> %s", enc);
 }
