@@ -2,8 +2,6 @@
 #define COLORISE_HPP
 
 #include <string>
-#include <vector>
-#include <unordered_map>
 
 std::string echo(const std::string& message);
 std::string print(const std::string& message);

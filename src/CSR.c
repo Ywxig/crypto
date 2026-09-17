@@ -6,7 +6,7 @@
 // Обычная расшифровка Цезаря (числовой сдвиг)
 void decrypt_caesar_shift(char *msg) {
     int key;
-    printf("key: ");
+    c_print_format("<key>");
     if (scanf("%d", &key) != 1) return;
 
     int alphabet_size = strlen(LETTERS);
@@ -22,15 +22,13 @@ void decrypt_caesar_shift(char *msg) {
             }
         }
     }
-    char buffer[512];
-    snprintf(buffer, sizeof(buffer), "<yellow> Decrypted: <reset> %s", msg);
-    c_print_format("<yellow> Decrypted: <reset> %s", msg);
+    c_print_format("<dec> %s", msg);
 }
 
 // Обычное шифрование Цезаря (числовой сдвиг)
 void encrypt_caesar_shift(char *msg) {
     int key;
-    printf("key: ");
+    c_print_format("<key>");
     if (scanf("%d", &key) != 1) return;
 
     int alphabet_size = strlen(LETTERS);
@@ -46,7 +44,5 @@ void encrypt_caesar_shift(char *msg) {
             }
         }
     }
-    char buffer[512];
-    snprintf(buffer, sizeof(buffer), "<yellow> Encrypted: <reset> %s", msg);
-    c_print_format("<yellow> Encrypted: <reset> %s", msg);
+    c_print_format("<enc> %s", msg);
 }

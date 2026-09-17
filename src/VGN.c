@@ -6,7 +6,7 @@
 void VGN_encript(char *msg) {
     int k, imsg = 0, ikey = 0, tmp;
     char key[26], enc[26];
-    printf("key: ");
+    c_print_format("<key>");
     if (scanf("%25s", key) != 1) return;
 
     k = 0;
@@ -33,13 +33,13 @@ void VGN_encript(char *msg) {
         k = (k == (int)key_len - 1) ? 0 : k + 1;
     }
     enc[msg_len] = '\0';
-    c_print_format("<yellow> Encrypted: <reset> %s", enc);
+    c_print_format("<enc> %s", enc);
 }
 
 void VGN_decript(char *msg) {
     int k, imsg = 0, ikey = 0, tmp;
     char key[26], enc[26];
-    printf("key: ");
+    c_print_format("<key>");
     if (scanf("%25s", key) != 1) return;
 
     k = 0;
@@ -67,5 +67,5 @@ void VGN_decript(char *msg) {
         k = (k == (int)key_len - 1) ? 0 : k + 1;
     }
     enc[msg_len] = '\0';
-    c_print_format("<yellow> Decrypted: <reset> %s", enc);
+    c_print_format("<dec> %s", enc);
 }

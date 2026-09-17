@@ -6,7 +6,7 @@
 // Генерация алфавита по ключевому слову
 char *caesar_with_key() {
     static char key[100];
-    printf("key: ");
+    c_print_format("<key>");
     if (scanf("%99s", key) != 1) return NULL;
 
     strcat(key, LETTERS);
@@ -43,7 +43,7 @@ void encrypt_caesar_keyword(char *msg) {
             }
         }
     }
-    c_print_format("<yellow> Encrypted: <reset> %s", msg);
+    c_print_format("<enc> %s", msg);
 }
 
 // Расшифровка Цезаря с ключевым словом
@@ -61,5 +61,5 @@ void decrypt_caesar_keyword(char *msg) {
             }
         }
     }
-    c_print_format("<yellow> Decrypted: <reset> %s", msg);
+    c_print_format("<dec> %s", msg);
 }

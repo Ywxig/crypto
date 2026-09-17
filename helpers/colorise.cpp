@@ -17,7 +17,10 @@ inline const std::unordered_map<std::string, std::string>& getColors() {
         {"<magenta>", "\033[35m"},
         {"<cyan>", "\033[36m"},
         {"<white>", "\033[37m"},
-        {"<reset>", "\033[0m"}
+        {"<reset>", "\033[0m"},
+        {"<enc>", "\033[33m Encrypt: \033[0m"},
+        {"<dec>", "\033[33m Decrypt: \033[0m"},
+        {"<key>", "\033[33m Key: \033[0m"}
     };
     return COLORS;
 }
