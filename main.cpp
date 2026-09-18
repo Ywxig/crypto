@@ -10,7 +10,7 @@ char LETTERS[] = "abcdefghijklmnopqrstuvwxyz";
 int main(int argc, char *argv[]) {
     if (argc < 2) {
 
-        std::cout << echo("Usage: " + std::string(argv[0]) + " <option> <message>\n"
+        std::cout << echo("Usage: <green> " + std::string(argv[0]) + " <magenta> <option> <reset> <message>\n"
              "Options:\n"
              " <yellow> -Ecsr <reset> Encrypt (Caesar Shift)\n"
              " <yellow> -Dcsr <reset> Decrypt (Caesar Shift)\n"
@@ -18,7 +18,9 @@ int main(int argc, char *argv[]) {
              " <yellow> -Dcsk <reset> Decrypt (Caesar Keyword)\n"
              " <yellow> -Evgn <reset> Encrypt (Vigenere)\n"
              " <yellow> -Dvgn <reset> Decrypt (Vigenere)\n"
-             " <yellow> -F <reset> Read file\n");
+             " <yellow> -F <reset> Read file\n"
+             " <yellow> -I <reset> Interactive mode\n"
+             " <yellow> -v <reset> Version info\n");
         exit(1);
     }
 
@@ -27,25 +29,38 @@ int main(int argc, char *argv[]) {
     char *msg = nullptr;
     std::string alg = "";
     std::string file = "";
-    if (argc > 3) {
-        alg = argv[2];
-        file = argv[3];
-    } else if (argc > 2) {
-        // Для C-функций, принимающих char*, берем .data() или c_str()
-        // Обратите внимание: если функции модифицируют строку на месте, нужно передавать неконстантный указатель.
-        // Используем константную копию или преобразуем в неконстантный чар, если функции Си мутируют строку.
+
+    // Обработка интерактивного режима (-I)
+    if (opt == "-I") {
+        if (argc > 2) {
+            alg = argv[2];
+        } else {
+            std::cerr << argv[0] << ": missing algorithm argument for -I\n";
+            exit(2);
+        }
+    }
+    // Обработка режима файлов (-F)
+    else if (opt == "-F") {
+        if (argc > 3) {
+            alg = argv[2];
+            file = argv[3];
+        } else {
+            std::cerr << argv[0] << ": missing algorithm or file argument for -F\n";
+            exit(2);
+        }
+    }
+    // Обычный режим с сообщением
+    else {
+        if (opt == "-v") {
+            std::cout << "v1.0.0\n";
+            exit(0);
+        }
+        if (argc < 3) {
+            std::cerr << argv[0] << ": missing message argument\n";
+            exit(2);
+        }
         msg_str = argv[2];
         msg = msg_str.data();
-    }
-
-    if (opt == "-v") {
-        std::cout << "v1.0.0\n";
-        exit(0);
-    }
-
-    if (argc < 3) {
-        std::cerr << argv[0] << ": missing message argument\n";
-        exit(2);
     }
 
 
@@ -61,6 +76,14 @@ int main(int argc, char *argv[]) {
         VGN_encript(msg);
     } else if (opt == "-Dvgn") {
         VGN_decript(msg);
+
+    } else if (opt == "-I") {
+        if (alg == "Idh") {
+            DIFFI_HELLMAN();
+        } else {
+            std::cerr << argv[0] << ": unknown interactive algorithm '" << alg << "'\n";
+            exit(3);
+        }
     } else if (opt == "-F") {
 
         if (alg == "Ecsr") {

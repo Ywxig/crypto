@@ -3,7 +3,6 @@
 
 #ifdef __cplusplus
 
-
 extern "C" {
 #endif
 
@@ -24,6 +23,10 @@ void decrypt_caesar_keyword(char *msg);
 // Прототипы функций из VGN.c
 void VGN_encript(char *msg);
 void VGN_decript(char *msg);
+
+// Прототипы функций из DFH.c
+void DIFFI_HELLMAN();
+
 
 #ifdef __cplusplus
 }
