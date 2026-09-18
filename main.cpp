@@ -5,7 +5,9 @@
 #include "include/file.h"
 #include "include/colorise.hpp"
 
-char LETTERS[] = "abcdefghijklmnopqrstuvwxyz";
+const char LETTERS[] = "abcdefghijklmnopqrstuvwxyz";
+const char LETTERS2[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const char LETTERS3[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -65,9 +67,13 @@ int main(int argc, char *argv[]) {
 
 
     if (opt == "-Ecsr") {
-        encrypt_caesar_shift(msg);
+        CSR_encrypt(msg);
     } else if (opt == "-Dcsr") {
-        decrypt_caesar_shift(msg);
+        CSR_decrypt(msg);
+    } else if (opt == "-Dcsrm") {
+        CSR_dec_math(msg);
+    } else if (opt == "-Ecsm") {
+        CSR_enc_math(msg);
     } else if (opt == "-Ecsk") {
         encrypt_caesar_keyword(msg);
     } else if (opt == "-Dcsk") {
@@ -76,7 +82,8 @@ int main(int argc, char *argv[]) {
         VGN_encript(msg);
     } else if (opt == "-Dvgn") {
         VGN_decript(msg);
-
+    } else if (opt == "-Evgns") {
+        VGN_enc_seed(msg);
     } else if (opt == "-I") {
         if (alg == "Idh") {
             DIFFI_HELLMAN();
@@ -87,9 +94,9 @@ int main(int argc, char *argv[]) {
     } else if (opt == "-F") {
 
         if (alg == "Ecsr") {
-            encrypt_caesar_shift(fileRead(file).data());
+            CSR_encrypt(fileRead(file).data());
         } else if (alg == "Dcsr") {
-            decrypt_caesar_shift(fileRead(file).data());
+            CSR_decrypt(fileRead(file).data());
         } else if (alg == "Ecsk") {
             encrypt_caesar_keyword(fileRead(file).data());
         } else if (alg == "Dcsk") {

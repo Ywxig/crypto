@@ -1,7 +1,5 @@
 #include <pthread.h>
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include "../include/globals.h"
 #include "../include/colorise.h"
 #include "../include/random.h"
