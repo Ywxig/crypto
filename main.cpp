@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
         if (argc > 2) {
             alg = argv[2];
         } else {
-            std::cerr << argv[0] << ": missing algorithm argument for -I\n";
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": missing algorithm argument for -I\n");
             exit(2);
         }
     }
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
             alg = argv[2];
             file = argv[3];
         } else {
-            std::cerr << argv[0] << ": missing algorithm or file argument for -F\n";
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": missing algorithm or file argument for -F\n");
             exit(2);
         }
     }
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
             exit(0);
         }
         if (argc < 3) {
-            std::cerr << argv[0] << ": missing message argument\n";
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": missing message argument\n");
             exit(2);
         }
         msg_str = argv[2];
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
         if (alg == "Idh") {
             DIFFI_HELLMAN();
         } else {
-            std::cerr << argv[0] << ": unknown interactive algorithm '" << alg << "'\n";
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": unknown interactive algorithm '" + alg + "'\n");
             exit(3);
         }
     } else if (opt == "-F") {
@@ -99,12 +99,12 @@ int main(int argc, char *argv[]) {
         } else if (alg == "Dvgn") {
             VGN_decript(fileRead(file).data());
         } else {
-            std::cerr << argv[0] << ": unknown algorithm '" << alg << "'\n";
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": unknown algorithm '" + alg + "'\n");
             exit(3);
         }
 
     } else {
-        std::cerr << argv[0] << ": unknown option '" << opt << "'\n";
+        std::cerr << echo("<red> " + (std::string)argv[0] + ": unknown option '" + opt + "'\n");
         exit(3);
     }
 
