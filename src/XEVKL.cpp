@@ -1,26 +1,7 @@
 #include <iostream>
 #include <cstdint>
 
-// Умножение многочленов без модульной редукции (GF(2))
-uint16_t poly_mult(uint16_t a, uint16_t b) {
-    uint16_t res = 0;
-    while (b > 0) {
-        if (b & 1) res ^= a;
-        a <<= 1;
-        b >>= 1;
-    }
-    return res;
-}
-
-// Вспомогательная функция для определения степени многочлена (индекс старшего бита)
-int degree(uint16_t poly) {
-    int deg = -1;
-    while (poly > 0) {
-        deg++;
-        poly >>= 1;
-    }
-    return deg;
-}
+#include "../include/mathx.hpp"
 
 // Расширенный алгоритм Евклида для многочленов
 void poly_ext_gcd(uint16_t a, uint16_t mod = 0x11B) {

@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     std::string opt = argv[1];
 
     // Options that do not require a third argument (message)
-    if (opt == "-test" || opt == "-v" || opt == "-I") {
+    if (opt == "-test" || opt == "-v") {
         if (opt == "-test") {
             [[maybe_unused]] uint8_t a = 0x57;
             [[maybe_unused]] uint8_t b = 0x83;
@@ -29,9 +29,6 @@ int main(int argc, char *argv[]) {
             exit(0);
         } else if (opt == "-v") {
             std::cout << "Version 1.0.0\n";
-            exit(0);
-        } else if (opt == "-I") {
-            std::cout << "Interactive mode placeholder.\n";
             exit(0);
         }
     }

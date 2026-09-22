@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -Wall -Wextra -Iinclude
 
 TARGET = dist/crypto
-SRC = main.cpp src/XMULT.cpp src/XEVKL.cpp helpers/file.cpp helpers/utils.cpp helpers/colorise.cpp helpers/c_utils.c helpers/randonm.c
+SRC = main.cpp src/XMULT.cpp src/XEVKL.cpp src/TLOGS.cpp  helpers/file.cpp helpers/utils.cpp helpers/colorise.cpp helpers/c_utils.c helpers/randonm.c lib/mathx.cpp
 
 all: $(TARGET)
 

@@ -1,8 +1,7 @@
 #include <iostream>
-#include <vector>
 #include <cstdint>
 
-#include "XMULT.cpp"
+#include "../include/mathx.hpp"
 
 constexpr int FIELD_SIZE = 256;
 constexpr uint16_t MOD = 0x11B; // x^8 + x^4 + x^3 + x + 1 (для AES)
@@ -10,15 +9,6 @@ constexpr uint16_t MOD = 0x11B; // x^8 + x^4 + x^3 + x + 1 (для AES)
 // Таблицы поиска (Lookup Tables)
 uint8_t log_table[FIELD_SIZE];
 uint8_t antilog_table[FIELD_SIZE];
-
-// Вычисление g^power в GF(2^8)
-uint8_t gf_pow(uint8_t g, int power) {
-    uint8_t res = 1;
-    for (int i = 0; i < power; ++i) {
-        res = gf_mult(res, g);
-    }
-    return res;
-}
 
 // Предрасчет таблиц логарифмов и антилогарифмов
 void precompute_tables(uint8_t g) {
