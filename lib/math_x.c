@@ -203,4 +203,5 @@ uint8_t gf_pow(uint8_t g, int power) {
         res = gf_mult(res, g);
     }
     return res;
+
 }

@@ -19,5 +19,6 @@ uint8_t gf_pow(uint8_t g, int power);
 
 
 #ifdef __cplusplus
+
 }
 #endif
