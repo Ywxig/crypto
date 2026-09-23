@@ -76,8 +76,13 @@ int main(int argc, char *argv[]) {
             exit(0);
         }
         if (argc < 3) {
-            std::cerr << echo("<red> " + (std::string)argv[0] + ": missing message argument\n");
-            exit(2);
+            if (opt[0] == '-') {
+                std::cerr << echo("<red> " + (std::string)argv[0] + ": missing message argument\n");
+                exit(2);
+            } else {
+                std::cerr << echo("<red> " + (std::string)argv[0] + ": missing option argument\n");
+                exit(2);
+            }
         }
         msg_str = argv[2];
         msg = msg_str.data();
