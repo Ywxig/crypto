@@ -4,6 +4,8 @@
 #include "include/globals.h"
 #include "include/file.h"
 #include "include/colorise.hpp"
+#include "include/math_x.h"
+
 
 const char LETTERS[] = "abcdefghijklmnopqrstuvwxyz";
 const char LETTERS2[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -38,6 +40,9 @@ int main(int argc, char *argv[]) {
              " <yellow> -Dcsk <reset> Decrypt (Caesar Keyword)\n"
              " <yellow> -Evgn <reset> Encrypt (Vigenere)\n"
              " <yellow> -Dvgn <reset> Decrypt (Vigenere)\n"
+             " <yellow> -GFm <reset> GF(2) multiplication\n"
+             " <yellow> -PEG <reset> Polynomial Extended GCD\n"
+             " <yellow> -Tlog <reset> GF(2) multiplication table\n"
              " <yellow> -F <reset> Read file\n"
              " <yellow> -I <reset> Interactive mode\n"
              " <yellow> -v <reset> Version info\n");
@@ -107,6 +112,16 @@ int main(int argc, char *argv[]) {
         VGN_decript(msg);
     } else if (opt == "-Evgns") {
         VGN_enc_seed(msg);
+    } else if (opt == "-GFm") {
+        gf_mult(argv[2][0], argv[3][0]);
+        exit(0);
+    } else if (opt == "-PEG") {
+        poly_ext_gcd(argv[2][0], 0x11B);
+        std::cout << argv[2][0] << " " << std::endl;
+        exit(0);
+    } else if (opt == "-Tlog") {
+        gf_mult_table(argv[2][0], argv[3][0]);
+        exit(0);
     } else if (opt == "-I") {
         if (alg == "Idh") {
             DIFFI_HELLMAN();

@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "../include/math_x.h"
+
 // Функция принимает число и массив, куда запишет строку
 void binary_representation(int e, char *buffer) {
     int index = 0;

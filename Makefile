@@ -6,7 +6,7 @@ CXXFLAGS = -Wall -Wextra -Iinclude
 TARGET = dist/crypto
 SRC = main.cpp src/CSR.c src/CSK.c src/VGN.c src/DFH.c
 HELPERS = helpers/file.cpp helpers/utils.cpp helpers/colorise.cpp helpers/c_utils.c helpers/randonm.c
-LIBS = lib/math_x.c lib/table_log.c
+LIBS = lib/math_x.c lib/table_log.c lib/poly_ext_gcd.c
 
 # Объединяем все исходные файлы
 ALL_SRCS = $(SRC) $(HELPERS) $(LIBS)
