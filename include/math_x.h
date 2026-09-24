@@ -19,14 +19,21 @@ uint8_t gf_mult(uint8_t a, uint8_t b);
 uint8_t gf_pow(uint8_t g, int power);
 
 // Табличные вычисления (из table_log.c)
-void precompute_tables(uint8_t g);
 uint8_t gf_mult_table(uint8_t a, uint8_t b);
+void precompute_tables(uint16_t g);
+
+
+
+// Операции с многочленами над GF(2) делением и остатком
+uint16_t poly_xor(uint16_t a, uint16_t b);
+uint16_t poly_div(uint16_t a, uint16_t b);
+uint16_t poly_mod(uint16_t a, uint16_t b);
 
 // Расширенный алгоритм Евклида для многочленов
 #ifdef __cplusplus
-uint8_t poly_ext_gcd(uint16_t a, uint16_t mod = 0x11B);
+uint8_t* poly_ext_gcd(uint16_t a, uint16_t mod = 0x11B);
 #else
-uint8_t poly_ext_gcd(uint16_t a, uint16_t mod);
+uint8_t* poly_ext_gcd(uint16_t a, uint16_t mod);
 #endif
 
 #ifdef __cplusplus

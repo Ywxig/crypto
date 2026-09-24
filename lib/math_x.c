@@ -1,5 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <sys/types.h>
 
 #include "../include/math_x.h"
 
@@ -206,4 +208,37 @@ uint8_t gf_pow(uint8_t g, int power) {
     }
     return res;
 
+}
+
+uint16_t poly_xor(uint16_t a, uint16_t b) {
+    return a ^ b;
+}
+
+// Функция вычисляет только частное (q)
+uint16_t poly_div(uint16_t a, uint16_t b) {
+    if (b == 0) { exit(1); }
+    uint16_t q = 0, rem = a;
+    int deg_b = degree(b);
+
+    for (int shift = degree(a) - deg_b; shift >= 0; --shift) {
+        if (rem & (1 << (shift + deg_b))) {
+            q ^= (1 << shift);
+            rem ^= (b << shift);
+        }
+    }
+    return q;
+}
+
+// Функция вычисляет только остаток (rem)
+uint16_t poly_mod(uint16_t a, uint16_t b) {
+    if (b == 0) { exit(1); }
+    uint16_t rem = a;
+    int deg_b = degree(b);
+
+    for (int shift = degree(a) - deg_b; shift >= 0; --shift) {
+        if (rem & (1 << (shift + deg_b))) {
+            rem ^= (b << shift);
+        }
+    }
+    return rem;
 }

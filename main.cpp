@@ -6,6 +6,7 @@
 #include "include/colorise.hpp"
 #include "include/math_x.h"
 
+#include "include/test_math.h"
 
 const char LETTERS[] = "abcdefghijklmnopqrstuvwxyz";
 const char LETTERS2[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -65,7 +66,9 @@ int main(int argc, char *argv[]) {
         }
     }
     // Обработка режима файлов (-F)
-    else if (opt == "-F") {
+    else if (opt == "-t" || opt == "-T") {
+        START_TEST();
+    } else if (opt == "-F") {
         if (argc > 3) {
             alg = argv[2];
             file = argv[3];
