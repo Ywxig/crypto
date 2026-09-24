@@ -20,20 +20,18 @@ uint8_t log_table[FIELD_SIZE];
 uint8_t antilog_table[FIELD_SIZE];
 
 void precompute_tables(uint16_t g) {
-    uint16_t val = 1; // g^0 = 1
-
     for (int i = 0; i < FIELD_SIZE - 1; ++i) {
-        antilog_table[i] = (uint8_t)val;
-        log_table[val]   = (uint8_t)i;
+        // Прямое возведение генератора в степень i
+        uint8_t val = gf_pow((uint8_t)g, i);
 
-        // Пошаговое умножение на генератор g намного быстрее, чем вызов gf_pow на каждом шаге!
-        val = poly_mult(val, g);
+        antilog_table[i] = val;
+        log_table[val]   = (uint8_t)i;
     }
 
     // Специальное/неопределенное значение для log(0)
     log_table[0] = 0;
 
-    // Закольцовываем antilog для защиты от переполнения при сложении логарифмов (i + j)
+    // Закольцовываем antilog для защиты от переполнения
     antilog_table[255] = antilog_table[0];
 }
 

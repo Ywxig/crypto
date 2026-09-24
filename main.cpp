@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
     // Обработка режима файлов (-F)
     else if (opt == "-t" || opt == "-T") {
         START_TEST();
+        exit(0);
     } else if (opt == "-F") {
         if (argc > 3) {
             alg = argv[2];

@@ -3,13 +3,7 @@
 #include <assert.h>
 
 #include "../include/math_x.h"
-
-// Объявления функций из table_log.c и ext_gcd.c
-void precompute_tables(uint16_t g);
-uint8_t gf_mult_table(uint8_t a, uint8_t b);
-uint8_t* poly_ext_gcd(uint16_t a, uint16_t mod);
-uint16_t* ext_gcd(uint16_t a, uint16_t mod);
-uint16_t mod_inverse(uint16_t a, uint16_t mod);
+#include "../include/test_math.h"
 
 // Простой прототип для проверки дискретного логарифма перебором
 int brute_force_dlog(int g, int h, int p) {
@@ -109,7 +103,6 @@ void test_discrete_logarithm(void) {
     printf("  -> Дискретный логарифм: УСПЕШНО\n\n");
 }
 
-// Замените int TEST_START(void) на int START_TEST(void)
 int START_TEST(void) {
     printf("=========================================\n");
     printf("   Запуск тестов криптографических тем   \n");

@@ -68,40 +68,41 @@ uint8_t* poly_ext_gcd(uint16_t a, uint16_t mod) {
         return x mod m
  */
 
-uint16_t* ext_gcd(uint16_t a, uint16_t mod) {
-    uint16_t old_r = a, r = mod;
-    uint16_t old_s = 1, s = 0;
+uint16_t* ext_gcd(uint16_t a_in, uint16_t mod_in) {
+    int a = a_in;
+    int m = mod_in;
+    int old_r = a, r = m;
+    int old_s = 1, s = 0;
 
     static uint16_t res[2];
 
-    if (a==0) { // предотвращения зацикливания и математичская оптимизация
+    if (a == 0) { // предотвращения зацикливания и математичская оптимизация
         res[0] = 0;
         res[1] = 0;
         return res;
     }
 
     while (r != 0) {
-        uint16_t q = poly_div(old_r, r);
+        uint16_t q = old_r / r;
 
-        uint16_t temp_r = old_r; // Временная переменная так как без неё алгоритм превратится в r = r - q * r
+        int temp_r = old_r;
         old_r = r;
         r = temp_r - q * r;
 
-        uint16_t temp_s = old_s; // Временная переменная так как без неё алгоритм превратится в s = s - q * s
+        int temp_s = old_s;
         old_s = s;
         s = temp_s - q * s;
     }
 
-    res[0] = old_r;
-    res[1] = old_s;
+    res[0] = (uint16_t)old_r;
+    res[1] = (uint16_t)((old_s % m + m) % m);
     return res;
 }
 
 uint16_t mod_inverse(uint16_t a, uint16_t mod) {
-    uint16_t g = ext_gcd(a, mod)[0];
-    if (g != 1) {
+    uint16_t* res = ext_gcd(a, mod);
+    if (res[0] != 1) {
         return 0;
     }
-    uint16_t x = ext_gcd(a, mod)[1];
-    return x % mod;
+    return res[1];
 }

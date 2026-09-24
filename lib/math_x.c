@@ -201,8 +201,8 @@ int degree(uint16_t poly) {
 }
 
 // Вычисление g^power в GF(2^8)
-uint8_t gf_pow(uint8_t g, int power) {
-    uint8_t res = 1;
+uint16_t gf_pow(uint16_t g, int power) {
+    uint16_t res = 1;
     for (int i = 0; i < power; ++i) {
         res = gf_mult(res, g);
     }
