@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 
 #include "../include/math_x.h"
 
@@ -46,4 +47,61 @@ uint8_t gf_mult_table(uint8_t a, uint8_t b) {
 
     printf("%u", antilog_table[log_sum]);
     return antilog_table[log_sum];
+}
+
+// Простой прототип для проверки дискретного логарифма перебором
+int brute_force_dlog(int g, int h, int p) {
+    for (int x = 0; x < p - 1; x++) {
+        if (mod_pow_ltr(g, x, p) == h) {
+            return x;
+        }
+    }
+    return -1;
+}
+
+/*
+function BSGS(g, h, p):
+    n = ceil(sqrt(p - 1))
+    table = {}
+    for j in 0..n-1:
+        table[mod_pow(g, j, p)] = j
+    g_inv_n = mod_inverse(mod_pow(g, n, p), p)
+    gamma = h
+    for i in 0..n-1:
+        if gamma in table:
+            return i*n + table[gamma]
+        gamma = (gamma * g_inv_n) mod p
+    return "there is no solution"
+ */
+
+int bsgs_dlog(int g, int h, int p) {
+    // Нормализация оснований по модулю p (для случаев g >= p, как 31 mod 29)
+    g = (g % p + p) % p;
+    h = (h % p + p) % p;
+
+    int n = (int)ceil(sqrt(p - 1));
+
+    // Таблица шагов младенца: table[j] = g^j mod p
+    int table[n];
+    for (int j = 0; j < n; j++) {
+        table[j] = mod_pow_ltr(g, j, p);
+    }
+
+    // 2. Фактор великана: (g^n)^(-1) mod p
+    int g_n = mod_pow_ltr(g, n, p);
+    int g_inv_n = mod_inverse(g_n, p);
+
+    int gamma = h;
+
+    // Шаги великана: ищем gamma среди ВСЕХ элементов таблицы baby steps
+    for (int i = 0; i <= n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (gamma == table[j]) {
+                return i * n + j; // Правильная формула: i * n + j
+            }
+        }
+        gamma = (int)(((long long)gamma * g_inv_n) % p);
+    }
+
+    return -1; // Логарифм не найден
 }

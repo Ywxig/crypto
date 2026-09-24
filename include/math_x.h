@@ -25,6 +25,9 @@ uint16_t gf_pow(uint16_t g, int power);
 // Табличные вычисления (из table_log.c)
 uint8_t gf_mult_table(uint8_t a, uint8_t b);
 void precompute_tables(uint16_t g);
+int brute_force_dlog(int g, int h, int p);
+int bsgs_dlog(int g, int h, int p);
+
 // Операции с многочленами над GF(2) делением и остатком
 uint16_t poly_xor(uint16_t a, uint16_t b);
 uint16_t poly_div(uint16_t a, uint16_t b);
