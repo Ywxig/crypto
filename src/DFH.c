@@ -3,6 +3,7 @@
 #include "../include/globals.h"
 #include "../include/colorise.h"
 #include "../include/random.h"
+// #include "../include/math_x.h"
 
 // Быстрое модульное возведение в степень: (base^exp) % mod
 long long mod_exp(long long base, long long exp, long long mod) {
@@ -20,7 +21,7 @@ long long mod_exp(long long base, long long exp, long long mod) {
 }
 
 // Алгоритм обмена ключами Диффи-Хеллмана (по примеру из задания)
-void DIFFI_HELLMAN() {
+long long DIFFI_HELLMAN() {
     // 1. Публичные параметры: p - простое число, g - его примитивный элемент по модулю p
     long long p = randInt();
     long long g = 2;
@@ -59,7 +60,9 @@ void DIFFI_HELLMAN() {
 
     if (K_A == K_B) {
         c_print_format("<green> Успех! Общий секретный ключ совпадает: <reset> %lld", K_A);
+        return K_A;
     } else {
         c_print_format("<red> Ошибка! Ключи не совпадают. <reset>");
     }
+    return -1;
 }

@@ -119,13 +119,11 @@ int main(int argc, char *argv[]) {
     } else if (opt == "-GFm") {
         gf_mult(argv[2][0], argv[3][0]);
         exit(0);
-    } else if (opt == "-PEG") {
-        poly_ext_gcd(argv[2][0], 0x11B);
-        std::cout << argv[2][0] << " " << std::endl;
-        exit(0);
-    } else if (opt == "-Tlog") {
-        gf_mult_table(argv[2][0], argv[3][0]);
-        exit(0);
+    } else if (opt == "-dfh") {
+        DIFFI_HELLMAN();
+    } else if (opt == "-RC2") {
+        long long key = DIFFI_HELLMAN();
+        RC2_encript(msg, &key);
     } else if (opt == "-I") {
         if (alg == "Idh") {
             DIFFI_HELLMAN();

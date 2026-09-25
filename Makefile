@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -Iinclude
 CXXFLAGS = -Wall -Wextra -Iinclude
 
 TARGET = dist/crypto
-SRC = main.cpp src/CSR.c src/CSK.c src/VGN.c src/DFH.c
+SRC = main.cpp src/CSR.c src/CSK.c src/VGN.c src/DFH.c src/RC2.c
 HELPERS = helpers/file.cpp helpers/utils.cpp helpers/colorise.cpp helpers/c_utils.c helpers/randonm.c
 LIBS = lib/math_x.c lib/table_log.c lib/ext_gcd.c
 TESTS = test/test_math.c

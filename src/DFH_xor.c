@@ -33,7 +33,7 @@ void xor_cipher(const char *input, char *output, size_t len, long long secret) {
     }
 }
 
-void DIFFI_HELLMAN() {
+void DIFFI_HELLMAN_xor() {
     long long p = 23;
     long long g = 5;
 

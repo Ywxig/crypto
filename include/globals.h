@@ -31,8 +31,11 @@ void VGN_decript(char *msg);
 void VGN_enc_seed(char *msg);
 
 // Прототипы функций из DFH.c
-void DIFFI_HELLMAN();
+long long DIFFI_HELLMAN();
+void DIFFI_HELLMAN_xor();
 
+//RC2
+void RC2_encript(char *msg, long long *key);
 
 #ifdef __cplusplus
 }
