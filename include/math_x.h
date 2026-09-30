@@ -33,7 +33,8 @@ int bsgs_dlog(int g, int h, int p);
 uint16_t poly_xor(uint16_t a, uint16_t b);
 uint16_t poly_div(uint16_t a, uint16_t b);
 uint16_t poly_mod(uint16_t a, uint16_t b);
-
+long long pow_mod(long long a, long long k, long long n);
+int pohlig_hellman(int g, int h, int p, int n);
 
 // Расширенный алгоритм Евклида для многочленов
 #ifdef __cplusplus

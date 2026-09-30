@@ -247,3 +247,54 @@ uint16_t poly_mod(uint16_t a, uint16_t b) {
 long long mod_inverse_fermat(long long a, long long p) {
     return mod_pow_ltr(a, p - 2, p);
 }
+
+/*
+    // n = group order = p1^e1 * p2^e2 * ...
+function pohlig_hellman(g, h, p, n):
+    factor n into prime factors: p1^e1, p2^e2, ...
+    for each p_i^e_i:
+        //usually recursively, with BSGS or Pollard rho on subgroup
+        compute x_i = discrete logarithm in subgroup of order p_i^e_i
+        //using Chinese Remainder Theorem (CRT)
+        combine all x_i
+    return x
+ */
+
+int pohlig_hellman(int g, int h, int p, int n) {
+    long long x = 0, M = 1;              // x mod M, накопленное для CRT
+    int rest = n;
+
+    for (int q = 2; rest > 1; q++) {
+        if ((long long)q * q > rest) q = rest;   // остаток — простое
+        if (rest % q) continue;
+
+        int e = 0, qe = 1, qe1 = 1;              // qe = q^e, qe1 = q^(e-1)
+        while (rest % q == 0) { rest /= q; e++; qe1 = qe; qe *= q; }
+
+        int gi  = mod_pow_ltr(g, n / qe, p);
+        int hi  = mod_pow_ltr(h, n / qe, p);
+        int inv = mod_inverse(gi, p);            // gi^(-1)
+        int gam = mod_pow_ltr(gi, qe1, p);       // элемент порядка q
+
+        int xi = 0, qk = 1;                      // xi = x mod q^e, по цифрам
+        for (int k = 0; k < e; k++) {
+            int t  = (int)((long long)hi * mod_pow_ltr(inv, xi, p) % p);
+            int hk = mod_pow_ltr(t, qe1 / qk, p);
+
+            int d = bsgs_dlog(gam, hk, p);       // цифра в [0, q)
+            if (d < 0) return -1;                // решения нет
+
+            xi += d * qk;
+            qk *= q;
+        }
+
+        // CRT: x += M * ((xi - x) * M^(-1) mod q^e)
+        long long minv = mod_inverse((uint16_t)(M % qe), (uint16_t)qe);
+        long long diff = (((xi - x) % qe) + qe) % qe;
+        x += M * (diff * minv % qe);
+        M *= qe;
+    }
+    return (int)x;
+}
+
+
