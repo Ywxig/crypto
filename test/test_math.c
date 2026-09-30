@@ -127,6 +127,18 @@ void test_binary_gcd_inverse(void) {
     printf("  Обратный элемент %u по модулю %u: %u\n", a, mod, inv);
 }
 
+void test_pohlig_hellman(void) {
+    printf("[8/8] Тестирование Pohlig-Hellman...\n");
+    int g = 2;
+    int h = 22;
+    int p = 29;
+    int n = 28;
+    int x = pohlig_hellman(g, h, p, n);
+    printf("  Решение: x = %d (ожидается: 26)\n", x);
+    assert(x == 26);
+    printf("  -> Pohlig-Hellman: УСПЕШНО\n\n");
+}
+
 int START_TEST(void) {
     printf("=========================================\n");
     printf("   Запуск тестов криптографических тем   \n");
