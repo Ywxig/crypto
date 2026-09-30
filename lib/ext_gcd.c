@@ -106,3 +106,76 @@ uint16_t mod_inverse(uint16_t a, uint16_t mod) {
     }
     return res[1];
 }
+
+/*
+function binary_gcd_inverse(a, m):
+    u, v = a, m
+    x1, x2 = 1, 0
+    while u != 1 and v != 1:
+        while u is even:
+            u = u / 2
+            if x1 is even: x1 = x1 / 2
+            else: x1 = (x1 + m) / 2
+        while v is even:
+            v = v / 2
+            if x2 is even: x2 = x2 / 2
+            else: x2 = (x2 + m) / 2
+        if u >= v:
+            u = u - v; x1 = x1 - x2
+        else:
+            v = v - u; x2 = x2 - x1
+    if u == 1:
+        return x1 mod m
+    else:
+        v = v - u; x2 = x2 - x1
+if u == 1:
+    return x1 mod m
+else:
+    return x2 mod m*/
+
+uint16_t binary_gcd_inverse(uint16_t a, uint16_t mod) {
+    if (a == 0 || mod == 0) return 0;
+
+    int32_t u = a;
+    int32_t v = mod;
+    int32_t m = mod;
+    int32_t x1 = 1;
+    int32_t x2 = 0;
+
+    while (u != 1 && v != 1) {
+        while ((u & 1) == 0) {
+            u /= 2;
+            if ((x1 & 1) == 0) {
+                x1 /= 2;
+            } else {
+                x1 = (x1 + m) / 2;
+            }
+        }
+        while ((v & 1) == 0) {
+            v /= 2;
+            if ((x2 & 1) == 0) {
+                x2 /= 2;
+            } else {
+                x2 = (x2 + m) / 2;
+            }
+        }
+        if (u >= v) {
+            u -= v;
+            x1 -= x2;
+        } else {
+            v -= u;
+            x2 -= x1;
+        }
+    }
+
+    int32_t result;
+    if (u == 1) {
+        result = x1;
+    } else {
+        v -= u;
+        x2 -= x1;
+        result = x2;
+    }
+
+    return (uint16_t)((result % m + m) % m);
+}

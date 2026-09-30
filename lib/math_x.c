@@ -242,3 +242,8 @@ uint16_t poly_mod(uint16_t a, uint16_t b) {
     }
     return rem;
 }
+
+// p must be prime
+long long mod_inverse_fermat(long long a, long long p) {
+    return mod_pow_ltr(a, p - 2, p);
+}

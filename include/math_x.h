@@ -13,6 +13,7 @@ int montgomery_ladder(int b, int e, int m);
 int sliding_window_pow(int b, int e, int m, int k);
 
 // Поиск обратного элемента по модулю
+long long mod_inverse_fermat(long long a, long long mod);
 uint16_t mod_inverse(uint16_t a, uint16_t mod);
 
 // Операции с многочленами над GF(2) и элементами GF(2^8)
@@ -33,11 +34,14 @@ uint16_t poly_xor(uint16_t a, uint16_t b);
 uint16_t poly_div(uint16_t a, uint16_t b);
 uint16_t poly_mod(uint16_t a, uint16_t b);
 
+
 // Расширенный алгоритм Евклида для многочленов
 #ifdef __cplusplus
 uint8_t* poly_ext_gcd(uint16_t a, uint16_t mod = 0x11B);
+uint16_t binary_gcd_inverse(uint16_t a, uint16_t mod = 0x11B);
 #else
 uint8_t* poly_ext_gcd(uint16_t a, uint16_t mod);
+uint16_t binary_gcd_inverse(uint16_t a, uint16_t mod);
 #endif
 
 #ifdef __cplusplus

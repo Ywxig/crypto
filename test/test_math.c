@@ -111,6 +111,22 @@ void test_bsgs_logarithm(void) {
     printf("  -> Дискретный логарифм (BSGS): УСПЕШНО\n\n");
 }
 
+void test_mod_inverse(void) {
+    printf("[6/6] Тестирование обратного элемента по модулю...\n");
+    long long a = 2;
+    long long p = 29;
+    long long inv = mod_inverse_fermat(a, p);
+    printf("  Обратный элемент %lld по модулю %lld: %lld\n", a, p, inv);
+}
+
+void test_binary_gcd_inverse(void) {
+    printf("[7/7] Тестирование бинарного GCD и обратного элемента...\n");
+    uint16_t a = 17;
+    uint16_t mod = 29;
+    uint16_t inv = binary_gcd_inverse(a, mod);
+    printf("  Обратный элемент %u по модулю %u: %u\n", a, mod, inv);
+}
+
 int START_TEST(void) {
     printf("=========================================\n");
     printf("   Запуск тестов криптографических тем   \n");
@@ -121,6 +137,8 @@ int START_TEST(void) {
     test_modular_inverse();
     test_discrete_logarithm();
     test_bsgs_logarithm();
+    test_mod_inverse();
+    test_binary_gcd_inverse();
 
     printf("=========================================\n");
     printf("   ВСЕ ТЕСТЫ УСПЕШНО ПРОЙДЕНЫ!           \n");
