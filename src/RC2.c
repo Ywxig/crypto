@@ -116,3 +116,95 @@ void RC2_encript(char *msg, long long *key) {
     printf("RC2 Blocks (After):\n");
     printf("  A = 0x%04X, B = 0x%04X, C = 0x%04X, D = 0x%04X\n", A, B, C, D);
 }
+
+void RC2_decrypt(uint16_t A, uint16_t B, uint16_t C, uint16_t D, long long *key) {
+    if (!A || !B || !C || !D || !key) return;
+
+    uint16_t K[64];
+    size_t key_len = sizeof(long long);
+    rc2_key_gen((const uint8_t *)key, key_len, K);
+
+    printf("RC2 Blocks (Before Decryption):\n");
+    printf("  A = 0x%04X, B = 0x%04X, C = 0x%04X, D = 0x%04X\n", A, B, C, D);
+
+    int j = 44; // Индекс ключа с конца (5 раундов * 4 = 20, 64 - 20 = 44)
+
+    // Обратные 5 раундов Mixing
+    for (int i = 0; i < 5; i++) {
+        j -= 4;
+        // Обратный порядок для раунда Mixing: D, C, B, A с отрицательными сдвигами
+        D = padding(D, -5);
+        D = D - A - (B & ~C) - (A & C) - K[j + 3];
+
+        C = padding(C, -3);
+        C = C - D - (A & ~B) - (D & B) - K[j + 2];
+
+        B = padding(B, -2);
+        B = B - C - (D & ~A) - (C & A) - K[j + 1];
+
+        A = padding(A, -1);
+        A = A - B - (C & ~D) - (B & D) - K[j + 0];
+    }
+
+    // Обратный 1 раунд Mashing
+    B = padding(B, -1);
+    C = padding(C, -1);
+    D = padding(D, -1);
+    A = padding(A, -1) - K[D & 63];
+
+    j = 24; // 24 = 44 - 20 (6 раундов * 4 = 24)
+
+    // Обратные 6 раундов Mixing
+    for (int i = 0; i < 6; i++) {
+        j -= 4;
+        D = padding(D, -5);
+        D = D - A - (B & ~C) - (A & C) - K[j + 3];
+
+        C = padding(C, -3);
+        C = C - D - (A & ~B) - (D & B) - K[j + 2];
+
+        B = padding(B, -2);
+        B = B - C - (D & ~A) - (C & A) - K[j + 1];
+
+        A = padding(A, -1);
+        A = A - B - (C & ~D) - (B & D) - K[j + 0];
+    }
+
+    // Обратный 1 раунд Mashing
+    B = padding(B, -1);
+    C = padding(C, -1);
+    D = padding(D, -1);
+    A = padding(A, -1) - K[D & 63];
+
+    j = 0;
+
+    // Обратные первые 5 раундов Mixing
+    for (int i = 0; i < 5; i++) {
+        j = 20 - (i + 1) * 4; // или идти в обратном порядке от 16 до 0
+        // Точнее, восстановим точную последовательность с конца первой фазы (индексы с 19 до 0)
+    }
+
+    // Перепишем аккуратно для первых 5 раундов (j от 16 до 0 с шагом -4):
+    for (int i = 4; i >= 0; i--) {
+        int idx = i * 4;
+        D = padding(D, -5);
+        D = D - A - (B & ~C) - (A & C) - K[idx + 3];
+
+        C = padding(C, -3);
+        C = C - D - (A & ~B) - (D & B) - K[idx + 2];
+
+        B = padding(B, -2);
+        B = B - C - (D & ~A) - (C & A) - K[idx + 1];
+
+        A = padding(A, -1);
+        A = A - B - (C & ~D) - (B & D) - K[idx + 0];
+    }
+
+    // memcpy(msg + 0, &A, 2);
+    // memcpy(msg + 2, &B, 2);
+    // memcpy(msg + 4, &C, 2);
+    // memcpy(msg + 6, &D, 2);
+
+    printf("RC2 Blocks (After Decryption):\n");
+    printf("  A = 0x%04X, B = 0x%04X, C = 0x%04X, D = 0x%04X\n", A, B, C, D);
+}

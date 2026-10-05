@@ -121,9 +121,13 @@ int main(int argc, char *argv[]) {
         exit(0);
     } else if (opt == "-dfh") {
         DIFFI_HELLMAN();
-    } else if (opt == "-RC2") {
+    } else if (opt == "-Erc2") {
         long long key = DIFFI_HELLMAN();
         RC2_encript(msg, &key);
+    } else if (opt == "-Drc2") {
+        //long long key = DIFFI_HELLMAN();
+        //void RC2_decrypt(uint16_t A, uint16_t B, uint16_t C, uint16_t D, long long &key);
+        std::cout << echo("<y> RC2 decryption is not yet implemented <r>");
     } else if (opt == "-I") {
         if (alg == "Idh") {
             DIFFI_HELLMAN();
