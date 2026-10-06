@@ -6,6 +6,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 // Общий глобальный массив
 extern const char LETTERS[];
 extern const char LETTERS2[];
@@ -35,7 +37,9 @@ long long DIFFI_HELLMAN();
 void DIFFI_HELLMAN_xor();
 
 //RC2
+void print_registers_as_text(uint16_t A, uint16_t B, uint16_t C, uint16_t D);
 void RC2_encript(char *msg, long long *key);
+void IDEA_encrypt(char* msg, char* key);
 
 #ifdef __cplusplus
 }

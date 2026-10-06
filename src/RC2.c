@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include "../include/globals.h"
@@ -23,6 +24,50 @@ static const uint8_t PITABLE[256] = {
     0xE4, 0x5D, 0x1A, 0xE8, 0x08, 0x72, 0x00, 0xA3, 0x6D, 0x94, 0xAC, 0x93, 0x75, 0x14, 0xE0, 0x68,
     0x65, 0xBC, 0xB9, 0x4C, 0xC8, 0x48, 0x86, 0x66, 0x3E, 0x10, 0x7B, 0x20, 0xB7, 0x8D, 0xAA, 0xD4
 };
+
+// Функция для преобразования строки шестнадцатеричных символов в байты (символы)
+int hex_to_bytes(const char *hex_str, uint8_t *out_buf, size_t out_max_len) {
+    size_t len = strlen(hex_str);
+    if (len % 2 != 0 || len / 2 > out_max_len) {
+        return -1; // Некорректная длина строки
+    }
+
+    for (size_t i = 0; i < len; i += 2) {
+        char byte_str[3] = { hex_str[i], hex_str[i + 1], '\0' };
+        char *endptr = NULL;
+        unsigned long val = strtoul(byte_str, &endptr, 16);
+        if (*endptr != '\0') {
+            return -1; // Ошибка парсинга HEX
+        }
+        out_buf[i / 2] = (uint8_t)val;
+    }
+    return (int)(len / 2);
+}
+
+void print_registers_as_text(uint16_t A, uint16_t B, uint16_t C, uint16_t D) {
+    uint8_t bytes[8];
+
+    // Разбиваем 16-битные регистры на Little-Endian байты
+    bytes[0] = A & 0xFF;
+    bytes[1] = (A >> 8) & 0xFF;
+    bytes[2] = B & 0xFF;
+    bytes[3] = (B >> 8) & 0xFF;
+    bytes[4] = C & 0xFF;
+    bytes[5] = (C >> 8) & 0xFF;
+    bytes[6] = D & 0xFF;
+    bytes[7] = (D >> 8) & 0xFF;
+
+    printf("Буквы: ");
+    for (int i = 0; i < 8; i++) {
+        // Печатаем как символ, если это читаемый ASCII
+        if (bytes[i] >= 32 && bytes[i] <= 126) {
+            printf("%c", bytes[i]);
+        } else {
+            printf("[0x%02X]", bytes[i]); // Иначе выводим HEX
+        }
+    }
+    printf("\n ___");
+}
 
 // Циклический сдвиг 16-битного числа влево
 static inline uint16_t padding(uint16_t val, int shift) {
@@ -204,6 +249,8 @@ void RC2_decrypt(uint16_t A, uint16_t B, uint16_t C, uint16_t D, long long *key)
     // memcpy(msg + 2, &B, 2);
     // memcpy(msg + 4, &C, 2);
     // memcpy(msg + 6, &D, 2);
+
+    print_registers_as_text(A, B, C, D);
 
     printf("RC2 Blocks (After Decryption):\n");
     printf("  A = 0x%04X, B = 0x%04X, C = 0x%04X, D = 0x%04X\n", A, B, C, D);
