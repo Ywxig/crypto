@@ -124,6 +124,10 @@ int main(int argc, char *argv[]) {
     } else if (opt == "-Erc2") {
         long long key = DIFFI_HELLMAN();
         RC2_encript(msg, &key);
+    } else if (opt == "-Eidea") {
+        long long key = DIFFI_HELLMAN();
+
+        IDEA_encrypt(msg, (char*)&key);
     } else if (opt == "-Drc2") {
         //long long key = DIFFI_HELLMAN();
         //void RC2_decrypt(uint16_t A, uint16_t B, uint16_t C, uint16_t D, long long &key);
