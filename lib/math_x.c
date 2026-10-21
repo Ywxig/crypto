@@ -297,4 +297,18 @@ int pohlig_hellman(int g, int h, int p, int n) {
     return (int)x;
 }
 
+long long pow_mod(long long base, long long exp, long long mod) {
+    long long res = 1;
+    base %= mod;
+    if (base < 0) base += mod;
+    while (exp > 0) {
+        if (exp & 1) {
+            res = (res * base) % mod;
+        }
+        exp >>= 1;
+        base = (base * base) % mod;
+    }
+    return res;
+}
+
 

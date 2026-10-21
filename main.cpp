@@ -1,5 +1,8 @@
 #include <iostream>
 #include <string>
+#include <vector>
+#include <cstdio>
+#include <cstdint>
 
 #include "include/globals.h"
 #include "include/file.h"
@@ -12,41 +15,99 @@ const char LETTERS[] = "abcdefghijklmnopqrstuvwxyz";
 const char LETTERS2[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const char LETTERS3[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
 
+static void print_usage(const char *prog) {
+    std::cout << echo(
+        "* <magenta> Copyright (C) 2026 Dmitrii Zimnov (Ywxig) <reset> \n"
+        "*\n"
+        "* This program is free software: you can redistribute it and/or modify\n"
+        "* it under the terms of the GNU General Public License as published by\n"
+        "* the Free Software Foundation, either version 3 of the License, or\n"
+        "* (at your option) any later version.\n"
+        "*\n"
+        "* This program is distributed in the hope that it will be useful,\n"
+        "* but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+        "* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+        "* GNU General Public License for more details.\n"
+        "*\n"
+        "* You should have received a copy of the GNU General Public License\n"
+        "* along with this program.  If not, see <https://www.gnu.org/licenses/>.\n"
+        "\n"
+        "\n"
+        "\n"
+        "Usage: <green> " + std::string(prog) + " <magenta> <option> <reset> <message>\n"
+        "Options:\n"
+        " <yellow> -Ecsr <reset> Encrypt (Caesar Shift)\n"
+        " <yellow> -Dcsr <reset> Decrypt (Caesar Shift)\n"
+        " <yellow> -Ecsk <reset> Encrypt (Caesar Keyword)\n"
+        " <yellow> -Dcsk <reset> Decrypt (Caesar Keyword)\n"
+        " <yellow> -Evgn <reset> Encrypt (Vigenere)\n"
+        " <yellow> -Dvgn <reset> Decrypt (Vigenere)\n"
+        " <yellow> -Erc2 <reset> Encrypt (RC2): -Erc2 <message>\n"
+        " <yellow> -Drc2 <reset> Decrypt (RC2): -Drc2 <key> <cipher_hex>\n"
+        " <yellow> -GFm <reset> GF(2) multiplication\n"
+        " <yellow> -PEG <reset> Polynomial Extended GCD\n"
+        " <yellow> -Tlog <reset> GF(2) multiplication table\n"
+        " <yellow> -F <reset> Read file\n"
+        " <yellow> -I <reset> Interactive mode\n"
+        " <yellow> -v <reset> Version info\n");
+}
+
+// ---------------------------------------------------------------------------
+// RC2
+// ---------------------------------------------------------------------------
+static int rc2_encrypt_cmd(const std::string &text) {
+    long long key = DIFFI_HELLMAN();
+
+    std::vector<uint8_t> out(text.size() + 8);
+    int n = RC2_encrypt(text.c_str(), key, out.data(), out.size());
+    if (n < 0) {
+        std::cerr << "RC2: encryption failed\n";
+        return 4;
+    }
+
+    std::cout << "Key: " << key << "\n";
+    std::cout << "Cipher: ";
+    for (int i = 0; i < n; i++) {
+        std::printf("%02X", out[i]);
+    }
+    std::cout << "\n";
+    return 0;
+}
+
+static int rc2_decrypt_cmd(const char *prog, const char *key_str, const char *hex_str) {
+    long long key = 0;
+    try {
+        key = std::stoll(key_str);
+    } catch (...) {
+        std::cerr << prog << ": invalid key '" << key_str << "'\n";
+        return 2;
+    }
+
+    std::string hex = hex_str;
+    std::vector<uint8_t> cipher(hex.size() / 2 + 1);
+    int n = hex_to_bytes(hex.c_str(), cipher.data(), cipher.size());
+    if (n <= 0 || n % 8 != 0) {
+        std::cerr << prog << ": cipher must be hex, length multiple of 16 chars\n";
+        return 2;
+    }
+
+    std::vector<char> plain(n + 1);
+    int m = RC2_decrypt(cipher.data(), (size_t)n, key, plain.data(), plain.size());
+    if (m < 0) {
+        std::cerr << prog << ": decryption failed (wrong key or corrupted data)\n";
+        return 4;
+    }
+
+    std::cout << "Decrypted: " << std::string(plain.data(), m) << "\n";
+    return 0;
+}
+
+// ---------------------------------------------------------------------------
+// main
+// ---------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-
-        std::cout << echo(
-            "* <magenta> Copyright (C) 2026 Dmitrii Zimnov (Ywxig) <reset> \n"
-            "*\n"
-            "* This program is free software: you can redistribute it and/or modify\n"
-            "* it under the terms of the GNU General Public License as published by\n"
-            "* the Free Software Foundation, either version 3 of the License, or\n"
-            "* (at your option) any later version.\n"
-            "*\n"
-            "* This program is distributed in the hope that it will be useful,\n"
-            "* but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-            "* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-            "* GNU General Public License for more details.\n"
-            "*\n"
-            "* You should have received a copy of the GNU General Public License\n"
-            "* along with this program.  If not, see <https://www.gnu.org/licenses/>.\n"
-            "\n"
-            "\n"
-            "\n"
-            "Usage: <green> " + std::string(argv[0]) + " <magenta> <option> <reset> <message>\n"
-             "Options:\n"
-             " <yellow> -Ecsr <reset> Encrypt (Caesar Shift)\n"
-             " <yellow> -Dcsr <reset> Decrypt (Caesar Shift)\n"
-             " <yellow> -Ecsk <reset> Encrypt (Caesar Keyword)\n"
-             " <yellow> -Dcsk <reset> Decrypt (Caesar Keyword)\n"
-             " <yellow> -Evgn <reset> Encrypt (Vigenere)\n"
-             " <yellow> -Dvgn <reset> Decrypt (Vigenere)\n"
-             " <yellow> -GFm <reset> GF(2) multiplication\n"
-             " <yellow> -PEG <reset> Polynomial Extended GCD\n"
-             " <yellow> -Tlog <reset> GF(2) multiplication table\n"
-             " <yellow> -F <reset> Read file\n"
-             " <yellow> -I <reset> Interactive mode\n"
-             " <yellow> -v <reset> Version info\n");
+        print_usage(argv[0]);
         exit(1);
     }
 
@@ -56,7 +117,7 @@ int main(int argc, char *argv[]) {
     std::string alg = "";
     std::string file = "";
 
-    // Обработка интерактивного режима (-I)
+    // Интерактивный режим (-I)
     if (opt == "-I") {
         if (argc > 2) {
             alg = argv[2];
@@ -65,11 +126,13 @@ int main(int argc, char *argv[]) {
             exit(2);
         }
     }
-    // Обработка режима файлов (-F)
+    // Тесты
     else if (opt == "-t" || opt == "-T") {
         START_TEST();
         exit(0);
-    } else if (opt == "-F") {
+    }
+    // Режим файлов (-F)
+    else if (opt == "-F") {
         if (argc > 3) {
             alg = argv[2];
             file = argv[3];
@@ -97,7 +160,6 @@ int main(int argc, char *argv[]) {
         msg = msg_str.data();
     }
 
-
     if (opt == "-Ecsr") {
         CSR_encrypt(msg);
     } else if (opt == "-Dcsr") {
@@ -117,21 +179,27 @@ int main(int argc, char *argv[]) {
     } else if (opt == "-Evgns") {
         VGN_enc_seed(msg);
     } else if (opt == "-GFm") {
+        if (argc < 4) {
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": -GFm needs two arguments\n");
+            exit(2);
+        }
         gf_mult(argv[2][0], argv[3][0]);
         exit(0);
     } else if (opt == "-dfh") {
         DIFFI_HELLMAN();
     } else if (opt == "-Erc2") {
-        long long key = DIFFI_HELLMAN();
-        RC2_encript(msg, &key);
+        // ./prog -Erc2 "message"
+        return rc2_encrypt_cmd(msg_str);
+    } else if (opt == "-Drc2") {
+        // ./prog -Drc2 <key> <cipher_hex>
+        if (argc < 4) {
+            std::cerr << "Usage: " << argv[0] << " -Drc2 <key> <cipher_hex>\n";
+            exit(2);
+        }
+        return rc2_decrypt_cmd(argv[0], argv[2], argv[3]);
     } else if (opt == "-Eidea") {
         long long key = DIFFI_HELLMAN();
-
-        IDEA_encrypt(msg, (char*)&key);
-    } else if (opt == "-Drc2") {
-        //long long key = DIFFI_HELLMAN();
-        //void RC2_decrypt(uint16_t A, uint16_t B, uint16_t C, uint16_t D, long long &key);
-        std::cout << echo("<y> RC2 decryption is not yet implemented <r>");
+        IDEA_encrypt(msg, (char *)&key);
     } else if (opt == "-I") {
         if (alg == "Idh") {
             DIFFI_HELLMAN();
@@ -140,24 +208,25 @@ int main(int argc, char *argv[]) {
             exit(3);
         }
     } else if (opt == "-F") {
+        // fileRead возвращает временный объект — сохраняем в переменную
+        auto data = fileRead(file);
 
         if (alg == "Ecsr") {
-            CSR_encrypt(fileRead(file).data());
+            CSR_encrypt(data.data());
         } else if (alg == "Dcsr") {
-            CSR_decrypt(fileRead(file).data());
+            CSR_decrypt(data.data());
         } else if (alg == "Ecsk") {
-            encrypt_caesar_keyword(fileRead(file).data());
+            encrypt_caesar_keyword(data.data());
         } else if (alg == "Dcsk") {
-            decrypt_caesar_keyword(fileRead(file).data());
+            decrypt_caesar_keyword(data.data());
         } else if (alg == "Evgn") {
-            VGN_encript(fileRead(file).data());
+            VGN_encript(data.data());
         } else if (alg == "Dvgn") {
-            VGN_decript(fileRead(file).data());
+            VGN_decript(data.data());
         } else {
             std::cerr << echo("<red> " + (std::string)argv[0] + ": unknown algorithm '" + alg + "'\n");
             exit(3);
         }
-
     } else {
         std::cerr << echo("<red> " + (std::string)argv[0] + ": unknown option '" + opt + "'\n");
         exit(3);

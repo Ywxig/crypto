@@ -3,9 +3,8 @@
 #include <string.h>
 #include <stdint.h>
 #include "../include/globals.h"
-#include "../include/colorise.h"
 
-// PITABLE — таблица подстановки (S-Box) по RFC 2268
+// PITABLE — таблица подстановки (S-Box)
 static const uint8_t PITABLE[256] = {
     0xD9, 0x78, 0xF9, 0xC4, 0x19, 0xDD, 0xB5, 0xED, 0x28, 0xE9, 0xFD, 0x79, 0x4A, 0xA0, 0xD8, 0x9D,
     0xC6, 0x7E, 0x37, 0x83, 0x2B, 0x76, 0x53, 0x8E, 0x62, 0x4C, 0x64, 0x88, 0x44, 0x8B, 0xFB, 0xA2,
@@ -25,11 +24,17 @@ static const uint8_t PITABLE[256] = {
     0x65, 0xBC, 0xB9, 0x4C, 0xC8, 0x48, 0x86, 0x66, 0x3E, 0x10, 0x7B, 0x20, 0xB7, 0x8D, 0xAA, 0xD4
 };
 
-// Функция для преобразования строки шестнадцатеричных символов в байты (символы)
+#define BLOCK_SIZE 8
+
+//
+// Вспомогательные функции
+//
+
+// Строка hex -> байты
 int hex_to_bytes(const char *hex_str, uint8_t *out_buf, size_t out_max_len) {
     size_t len = strlen(hex_str);
     if (len % 2 != 0 || len / 2 > out_max_len) {
-        return -1; // Некорректная длина строки
+        return -1;
     }
 
     for (size_t i = 0; i < len; i += 2) {
@@ -37,54 +42,25 @@ int hex_to_bytes(const char *hex_str, uint8_t *out_buf, size_t out_max_len) {
         char *endptr = NULL;
         unsigned long val = strtoul(byte_str, &endptr, 16);
         if (*endptr != '\0') {
-            return -1; // Ошибка парсинга HEX
+            return -1;
         }
         out_buf[i / 2] = (uint8_t)val;
     }
     return (int)(len / 2);
 }
 
-void print_registers_as_text(uint16_t A, uint16_t B, uint16_t C, uint16_t D) {
-    uint8_t bytes[8];
-
-    // Разбиваем 16-битные регистры на Little-Endian байты
-    bytes[0] = A & 0xFF;
-    bytes[1] = (A >> 8) & 0xFF;
-    bytes[2] = B & 0xFF;
-    bytes[3] = (B >> 8) & 0xFF;
-    bytes[4] = C & 0xFF;
-    bytes[5] = (C >> 8) & 0xFF;
-    bytes[6] = D & 0xFF;
-    bytes[7] = (D >> 8) & 0xFF;
-
-    printf("Буквы: ");
-    for (int i = 0; i < 8; i++) {
-        // Печатаем как символ, если это читаемый ASCII
-        if (bytes[i] >= 32 && bytes[i] <= 126) {
-            printf("%c", bytes[i]);
-        } else {
-            printf("[0x%02X]", bytes[i]); // Иначе выводим HEX
-        }
-    }
-    printf("\n ___");
+// Циклический сдвиг 16-битного числа влево / вправо (shift от 1 до 15)
+static inline uint16_t rol16(uint16_t v, int s) {
+    return (uint16_t)((v << s) | (v >> (16 - s)));
 }
 
-// Циклический сдвиг 16-битного числа влево
-static inline uint16_t padding(uint16_t val, int shift) {
-    return (val << shift) | (val >> (16 - shift)); // (val сдвиг на shift) or (val сдвигаем на (16 - shift))
+static inline uint16_t ror16(uint16_t v, int s) {
+    return (uint16_t)((v >> s) | (v << (16 - s)));
 }
 
-// Операция перемешивания (Mixing)
-static inline uint16_t mixing(uint16_t r1, uint16_t r2, uint16_t r3, uint16_t r4, uint16_t k, int shift) {
-    return padding(r1 + (r2 & ~r4) + (r3 & r4) + k, shift);
-}
-
-// Операция сжатия (Mashing)
-static inline uint16_t rc2_mash(uint16_t r1, const uint16_t *K, uint16_t r2) {
-    return padding(r1 + K[r2 & 63], 1);
-}
-
+//
 // Генерация 64 субключей
+//
 static void rc2_key_gen(const uint8_t *key, size_t key_len, uint16_t *K) {
     uint8_t L[128];
     memset(L, 0, sizeof(L));
@@ -99,159 +75,136 @@ static void rc2_key_gen(const uint8_t *key, size_t key_len, uint16_t *K) {
     }
 }
 
-void RC2_encript(char *msg, long long *key) {
-    if (!msg || !key) return;
+//
+// Раунды: прямой и обратный
+//
 
-    uint16_t K[64];
-    size_t key_len = sizeof(long long);
-    rc2_key_gen((const uint8_t *)key, key_len, K);
-
-    uint16_t A, B, C, D;
-    memcpy(&A, msg + 0, 2);
-    memcpy(&B, msg + 2, 2);
-    memcpy(&C, msg + 4, 2);
-    memcpy(&D, msg + 6, 2);
-
-    printf("RC2 Blocks (Before):\n");
-    printf("  A = 0x%04X, B = 0x%04X, C = 0x%04X, D = 0x%04X\n", A, B, C, D);
-
-    int j = 0; // Индекс ключа
-
-    // 5 раундов Mixing
-    for (int i = 0; i < 5; i++) {
-        A = mixing(A, B, C, D, K[j++], 1);
-        B = mixing(B, C, D, A, K[j++], 2);
-        C = mixing(C, D, A, B, K[j++], 3);
-        D = mixing(D, A, B, C, K[j++], 5);
-    }
-
-    // 1 раунд Mashing
-    A = rc2_mash(A, K, D);
-    B = padding(B, 1);
-    C = padding(C, 1);
-    D = padding(D, 1);
-
-    // 6 раундов Mixing
-    for (int i = 0; i < 6; i++) {
-        A = mixing(A, B, C, D, K[j++], 1);
-        B = mixing(B, C, D, A, K[j++], 2);
-        C = mixing(C, D, A, B, K[j++], 3);
-        D = mixing(D, A, B, C, K[j++], 5);
-    }
-
-    // 1 раунд Mashing
-    A = rc2_mash(A, K, D);
-    B = padding(B, 1);
-    C = padding(C, 1);
-    D = padding(D, 1);
-
-    // 5 раундов Mixing
-    for (int i = 0; i < 5; i++) {
-        A = mixing(A, B, C, D, K[j++], 1);
-        B = mixing(B, C, D, A, K[j++], 2);
-        C = mixing(C, D, A, B, K[j++], 3);
-        D = mixing(D, A, B, C, K[j++], 5);
-    }
-
-    memcpy(msg + 0, &A, 2);
-    memcpy(msg + 2, &B, 2);
-    memcpy(msg + 4, &C, 2);
-    memcpy(msg + 6, &D, 2);
-
-    printf("RC2 Blocks (After):\n");
-    printf("  A = 0x%04X, B = 0x%04X, C = 0x%04X, D = 0x%04X\n", A, B, C, D);
+// Один раунд Mixing (4 шага), использует K[j .. j+3]
+static void mix_round(uint16_t *A, uint16_t *B, uint16_t *C, uint16_t *D,
+                      const uint16_t *K, int j) {
+    *A = rol16((uint16_t)(*A + (*B & ~*D) + (*C & *D) + K[j + 0]), 1);
+    *B = rol16((uint16_t)(*B + (*C & ~*A) + (*D & *A) + K[j + 1]), 2);
+    *C = rol16((uint16_t)(*C + (*D & ~*B) + (*A & *B) + K[j + 2]), 3);
+    *D = rol16((uint16_t)(*D + (*A & ~*C) + (*B & *C) + K[j + 3]), 5);
 }
 
-void RC2_decrypt(uint16_t A, uint16_t B, uint16_t C, uint16_t D, long long *key) {
-    if (!A || !B || !C || !D || !key) return;
+// Обратный раунд Mixing: шаги в обратном порядке (D, C, B, A)
+static void unmix_round(uint16_t *A, uint16_t *B, uint16_t *C, uint16_t *D,
+                        const uint16_t *K, int j) {
+    *D = (uint16_t)(ror16(*D, 5) - (*A & ~*C) - (*B & *C) - K[j + 3]);
+    *C = (uint16_t)(ror16(*C, 3) - (*D & ~*B) - (*A & *B) - K[j + 2]);
+    *B = (uint16_t)(ror16(*B, 2) - (*C & ~*A) - (*D & *A) - K[j + 1]);
+    *A = (uint16_t)(ror16(*A, 1) - (*B & ~*D) - (*C & *D) - K[j + 0]);
+}
+
+// Mashing
+static void mash(uint16_t *A, uint16_t *B, uint16_t *C, uint16_t *D,
+                 const uint16_t *K) {
+    *A = rol16((uint16_t)(*A + K[*D & 63]), 1);   // D ещё не изменён
+    *B = rol16(*B, 1);
+    *C = rol16(*C, 1);
+    *D = rol16(*D, 1);
+}
+
+// Обратный Mashing
+static void unmash(uint16_t *A, uint16_t *B, uint16_t *C, uint16_t *D,
+                   const uint16_t *K) {
+    *B = ror16(*B, 1);
+    *C = ror16(*C, 1);
+    *D = ror16(*D, 1);                             // D восстановлен первым
+    *A = (uint16_t)(ror16(*A, 1) - K[*D & 63]);
+}
+
+// Один 8-байтный блок
+static void load_block(const uint8_t *b, uint16_t *A, uint16_t *B,
+                       uint16_t *C, uint16_t *D) {
+    *A = (uint16_t)(b[0] | (b[1] << 8));
+    *B = (uint16_t)(b[2] | (b[3] << 8));
+    *C = (uint16_t)(b[4] | (b[5] << 8));
+    *D = (uint16_t)(b[6] | (b[7] << 8));
+}
+
+static void store_block(uint8_t *b, uint16_t A, uint16_t B,
+                        uint16_t C, uint16_t D) {
+    b[0] = A & 0xFF; b[1] = A >> 8;
+    b[2] = B & 0xFF; b[3] = B >> 8;
+    b[4] = C & 0xFF; b[5] = C >> 8;
+    b[6] = D & 0xFF; b[7] = D >> 8;
+}
+
+static void encrypt_block(uint8_t *blk, const uint16_t *K) {
+    uint16_t A, B, C, D;
+    load_block(blk, &A, &B, &C, &D);
+
+    int j = 0;
+    for (int i = 0; i < 5; i++, j += 4) mix_round(&A, &B, &C, &D, K, j);
+    mash(&A, &B, &C, &D, K);
+    for (int i = 0; i < 6; i++, j += 4) mix_round(&A, &B, &C, &D, K, j);
+    mash(&A, &B, &C, &D, K);
+    for (int i = 0; i < 5; i++, j += 4) mix_round(&A, &B, &C, &D, K, j);
+
+    store_block(blk, A, B, C, D);
+}
+
+static void decrypt_block(uint8_t *blk, const uint16_t *K) {
+    uint16_t A, B, C, D;
+    load_block(blk, &A, &B, &C, &D);
+
+    int j = 60;                                    // 64 - 4
+    for (int i = 0; i < 5; i++, j -= 4) unmix_round(&A, &B, &C, &D, K, j);
+    unmash(&A, &B, &C, &D, K);
+    for (int i = 0; i < 6; i++, j -= 4) unmix_round(&A, &B, &C, &D, K, j);
+    unmash(&A, &B, &C, &D, K);
+    for (int i = 0; i < 5; i++, j -= 4) unmix_round(&A, &B, &C, &D, K, j);
+
+    store_block(blk, A, B, C, D);
+}
+
+//
+// Публичный интерфейс
+//
+int RC2_encrypt(const char *msg, long long key, uint8_t *out, size_t out_max) {
+    if (!msg || !out) return -1;
+
+    size_t len   = strlen(msg);
+    size_t total = (len / BLOCK_SIZE + 1) * BLOCK_SIZE;   // PKCS#7: всегда 1..8 байт
+    if (total > out_max) return -1;
+
+    memcpy(out, msg, len);
+    memset(out + len, (int)(total - len), total - len);
 
     uint16_t K[64];
-    size_t key_len = sizeof(long long);
-    rc2_key_gen((const uint8_t *)key, key_len, K);
+    rc2_key_gen((const uint8_t *)&key, sizeof(key), K);
 
-    printf("RC2 Blocks (Before Decryption):\n");
-    printf("  A = 0x%04X, B = 0x%04X, C = 0x%04X, D = 0x%04X\n", A, B, C, D);
+    for (size_t i = 0; i < total; i += BLOCK_SIZE) {
+        encrypt_block(out + i, K);
+    }
+    return (int)total;
+}
 
-    int j = 44; // Индекс ключа с конца (5 раундов * 4 = 20, 64 - 20 = 44)
-
-    // Обратные 5 раундов Mixing
-    for (int i = 0; i < 5; i++) {
-        j -= 4;
-        // Обратный порядок для раунда Mixing: D, C, B, A с отрицательными сдвигами
-        D = padding(D, -5);
-        D = D - A - (B & ~C) - (A & C) - K[j + 3];
-
-        C = padding(C, -3);
-        C = C - D - (A & ~B) - (D & B) - K[j + 2];
-
-        B = padding(B, -2);
-        B = B - C - (D & ~A) - (C & A) - K[j + 1];
-
-        A = padding(A, -1);
-        A = A - B - (C & ~D) - (B & D) - K[j + 0];
+int RC2_decrypt(const uint8_t *in, size_t len, long long key,
+                char *out, size_t out_max) {
+    if (!in || !out || len == 0 || len % BLOCK_SIZE != 0 || len + 1 > out_max) {
+        return -1;
     }
 
-    // Обратный 1 раунд Mashing
-    B = padding(B, -1);
-    C = padding(C, -1);
-    D = padding(D, -1);
-    A = padding(A, -1) - K[D & 63];
+    memcpy(out, in, len);
 
-    j = 24; // 24 = 44 - 20 (6 раундов * 4 = 24)
+    uint16_t K[64];
+    rc2_key_gen((const uint8_t *)&key, sizeof(key), K);
 
-    // Обратные 6 раундов Mixing
-    for (int i = 0; i < 6; i++) {
-        j -= 4;
-        D = padding(D, -5);
-        D = D - A - (B & ~C) - (A & C) - K[j + 3];
-
-        C = padding(C, -3);
-        C = C - D - (A & ~B) - (D & B) - K[j + 2];
-
-        B = padding(B, -2);
-        B = B - C - (D & ~A) - (C & A) - K[j + 1];
-
-        A = padding(A, -1);
-        A = A - B - (C & ~D) - (B & D) - K[j + 0];
+    for (size_t i = 0; i < len; i += BLOCK_SIZE) {
+        decrypt_block((uint8_t *)out + i, K);
     }
 
-    // Обратный 1 раунд Mashing
-    B = padding(B, -1);
-    C = padding(C, -1);
-    D = padding(D, -1);
-    A = padding(A, -1) - K[D & 63];
-
-    j = 0;
-
-    // Обратные первые 5 раундов Mixing
-    for (int i = 0; i < 5; i++) {
-        j = 20 - (i + 1) * 4; // или идти в обратном порядке от 16 до 0
-        // Точнее, восстановим точную последовательность с конца первой фазы (индексы с 19 до 0)
+    // Проверка и снятие PKCS#7
+    uint8_t pad = (uint8_t)out[len - 1];
+    if (pad < 1 || pad > BLOCK_SIZE || pad > len) return -1;
+    for (size_t i = len - pad; i < len; i++) {
+        if ((uint8_t)out[i] != pad) return -1;
     }
 
-    // Перепишем аккуратно для первых 5 раундов (j от 16 до 0 с шагом -4):
-    for (int i = 4; i >= 0; i--) {
-        int idx = i * 4;
-        D = padding(D, -5);
-        D = D - A - (B & ~C) - (A & C) - K[idx + 3];
-
-        C = padding(C, -3);
-        C = C - D - (A & ~B) - (D & B) - K[idx + 2];
-
-        B = padding(B, -2);
-        B = B - C - (D & ~A) - (C & A) - K[idx + 1];
-
-        A = padding(A, -1);
-        A = A - B - (C & ~D) - (B & D) - K[idx + 0];
-    }
-
-    // memcpy(msg + 0, &A, 2);
-    // memcpy(msg + 2, &B, 2);
-    // memcpy(msg + 4, &C, 2);
-    // memcpy(msg + 6, &D, 2);
-
-    print_registers_as_text(A, B, C, D);
-
-    printf("RC2 Blocks (After Decryption):\n");
-    printf("  A = 0x%04X, B = 0x%04X, C = 0x%04X, D = 0x%04X\n", A, B, C, D);
+    size_t text_len = len - pad;
+    out[text_len] = '\0';
+    return (int)text_len;
 }

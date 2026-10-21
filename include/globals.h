@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stddef.h>
 
 // Общий глобальный массив
 extern const char LETTERS[];
@@ -36,9 +37,13 @@ void VGN_enc_seed(char *msg);
 long long DIFFI_HELLMAN();
 void DIFFI_HELLMAN_xor();
 
-//RC2
-void print_registers_as_text(uint16_t A, uint16_t B, uint16_t C, uint16_t D);
-void RC2_encript(char *msg, long long *key);
+// RC2 (RC2.c)
+// Строка hex -> байты. Возвращает число байт или -1 при ошибке.
+int hex_to_bytes(const char *hex_str, uint8_t *out_buf, size_t out_max_len);
+// Шифрование строки (ECB, PKCS#7). Возвращает длину шифртекста (кратна 8) или -1.
+int RC2_encrypt(const char *msg, long long key, uint8_t *out, size_t out_max);
+// Расшифровка. Возвращает длину текста или -1 (неверный ключ / битые данные).
+int RC2_decrypt(const uint8_t *in, size_t len, long long key, char *out, size_t out_max);
 
 // IDEA
 void idea_expand_key(const char* user_key, uint16_t* EK);
