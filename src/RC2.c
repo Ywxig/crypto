@@ -141,8 +141,7 @@ static void mash(uint16_t *A, uint16_t *B, uint16_t *C, uint16_t *D,
 }
 
 // Обратный Mashing
-static void unmash(uint16_t *A, uint16_t *B, uint16_t *C, uint16_t *D,
-                   const uint16_t *K) {
+static void unmash(uint16_t *A, uint16_t *B, uint16_t *C, uint16_t *D,  const uint16_t *K) {
     *B = ror16(*B, 1);
     *C = ror16(*C, 1);
     *D = ror16(*D, 1);                             // D восстановлен первым
@@ -150,8 +149,7 @@ static void unmash(uint16_t *A, uint16_t *B, uint16_t *C, uint16_t *D,
 }
 
 // Один 8-байтный блок
-static void load_block(const uint8_t *b, uint16_t *A, uint16_t *B,
-                       uint16_t *C, uint16_t *D) {
+static void load_block(const uint8_t *b, uint16_t *A, uint16_t *B, uint16_t *C, uint16_t *D) {
     *A = (uint16_t)(b[0] | (b[1] << 8));
     *B = (uint16_t)(b[2] | (b[3] << 8));
     *C = (uint16_t)(b[4] | (b[5] << 8));
@@ -171,11 +169,19 @@ static void encrypt_block(uint8_t *blk, const uint16_t *K) {
     load_block(blk, &A, &B, &C, &D);
 
     int j = 0;
-    for (int i = 0; i < 5; i++, j += 4) mix_round(&A, &B, &C, &D, K, j);
+    for (int i = 0; i < 5; i++, j += 4) {
+        mix_round(&A, &B, &C, &D, K, j);
+    }
+
     mash(&A, &B, &C, &D, K);
-    for (int i = 0; i < 6; i++, j += 4) mix_round(&A, &B, &C, &D, K, j);
+    for (int i = 0; i < 6; i++, j += 4) {
+        mix_round(&A, &B, &C, &D, K, j);
+    }
+
     mash(&A, &B, &C, &D, K);
-    for (int i = 0; i < 5; i++, j += 4) mix_round(&A, &B, &C, &D, K, j);
+    for (int i = 0; i < 5; i++, j += 4) {
+        mix_round(&A, &B, &C, &D, K, j);
+    }
 
     store_block(blk, A, B, C, D);
 }
@@ -184,12 +190,21 @@ static void decrypt_block(uint8_t *blk, const uint16_t *K) {
     uint16_t A, B, C, D;
     load_block(blk, &A, &B, &C, &D);
 
-    int j = 60;                                    // 64 - 4
-    for (int i = 0; i < 5; i++, j -= 4) unmix_round(&A, &B, &C, &D, K, j);
+    int j = 60;
+    // 64 - 4
+    for (int i = 0; i < 5; i++, j -= 4) {
+        unmix_round(&A, &B, &C, &D, K, j);
+    }
     unmash(&A, &B, &C, &D, K);
-    for (int i = 0; i < 6; i++, j -= 4) unmix_round(&A, &B, &C, &D, K, j);
+
+    for (int i = 0; i < 6; i++, j -= 4) {
+        unmix_round(&A, &B, &C, &D, K, j);
+    }
     unmash(&A, &B, &C, &D, K);
-    for (int i = 0; i < 5; i++, j -= 4) unmix_round(&A, &B, &C, &D, K, j);
+
+    for (int i = 0; i < 5; i++, j -= 4) {
+        unmix_round(&A, &B, &C, &D, K, j);
+    }
 
     store_block(blk, A, B, C, D);
 }
@@ -216,8 +231,7 @@ int RC2_encrypt(const char *msg, long long key, uint8_t *out, size_t out_max) {
     return (int)total;
 }
 
-int RC2_decrypt(const uint8_t *in, size_t len, long long key,
-                char *out, size_t out_max) {
+int RC2_decrypt(const uint8_t *in, size_t len, long long key, char *out, size_t out_max) {
     if (!in || !out || len == 0 || len % BLOCK_SIZE != 0 || len + 1 > out_max) {
         return -1;
     }
