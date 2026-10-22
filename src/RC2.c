@@ -83,8 +83,10 @@ function RC2_keyexp(key, keylen, effective_bits)
     return L
  */
 static void rc2_key_gen(const uint8_t *key, size_t key_len, uint16_t *K) {
+    // всё работает в  PITABLE так как RC2 может выдать хэш которого нет, что поломает дишифровку и посути повредит данные
     uint8_t L[128];
     memset(L, 0, sizeof(L));
+    // Если длина ключа меньше 128 тогда используем длину ключа чтобы ограничить массив L иначе используем 128 как максимальная длинна массива
     memcpy(L, key, key_len < 128 ? key_len : 128);
 
     //Копирование ключа и расширение с использованием PITABLE
@@ -156,8 +158,8 @@ static void load_block(const uint8_t *b, uint16_t *A, uint16_t *B, uint16_t *C, 
     *D = (uint16_t)(b[6] | (b[7] << 8));
 }
 
-static void store_block(uint8_t *b, uint16_t A, uint16_t B,
-                        uint16_t C, uint16_t D) {
+// сохранение блока
+static void store_block(uint8_t *b, uint16_t A, uint16_t B, uint16_t C, uint16_t D) {
     b[0] = A & 0xFF; b[1] = A >> 8;
     b[2] = B & 0xFF; b[3] = B >> 8;
     b[4] = C & 0xFF; b[5] = C >> 8;
