@@ -58,27 +58,61 @@ static inline uint16_t ror16(uint16_t v, int s) {
     return (uint16_t)((v >> s) | (v << (16 - s)));
 }
 
-//
+
 // Генерация 64 субключей
-//
+/*
+function RC2_keyexp(key, keylen, effective_bits)
+    // array of 128 bytes
+    L[]
+    // Step 1: Copy the key and expand using PITABLE
+
+    for i=0 to keylen-1
+        L[i]=key[i]
+
+        for i=keylen to 127
+            L[i]=PITABLE[(L[i-1]+L[i-keylen]) MOD 256]
+
+    // Step 2: Apply the mask for the effective key bits (T1)
+    T8=(effective_bits+7)/8
+    TM=255>>(8*T8-effective_bits)
+    L[128-T8]=PITABLE[L[128-T8] AND TM]
+
+    for i=128-T8-1 downto 0
+        L[i]=PITABLE[L[i+1] XOR L[i+T8]]
+    // converted to 64 words of 16-bit (Little-Endian)
+    return L
+ */
 static void rc2_key_gen(const uint8_t *key, size_t key_len, uint16_t *K) {
     uint8_t L[128];
     memset(L, 0, sizeof(L));
     memcpy(L, key, key_len < 128 ? key_len : 128);
 
+    //Копирование ключа и расширение с использованием PITABLE
     for (size_t i = key_len; i < 128; i++) {
         L[i] = PITABLE[(L[i - 1] + L[i - key_len]) & 0xFF];
     }
 
+    //Применение маски для эффективной ключа (effective_bits)
+    //По умолчанию для полной длины ключа можно взять effective_bits = key_len * 8 (или 128)
+    int effective_bits = (int)(key_len * 8);
+    size_t T8 = (effective_bits + 7) / 8;
+    uint8_t TM = (uint8_t)(255 >> (8 * T8 - effective_bits));
+
+    // Модификация элемента с помощью маски и PITABLE
+    L[128 - T8] = PITABLE[L[128 - T8] & TM];
+
+    // Обратный цикл (downto 0) с операцией XOR и PITABLE[cite: 12]
+    for (int i = (int)(128 - T8 - 1); i >= 0; i--) {
+        L[i] = PITABLE[L[i + 1] ^ L[i + T8]];
+    }
+
+    // Конвертация в 64 слова по 16 бит (Little-Endian)[cite: 12]
     for (int i = 0; i < 64; i++) {
         K[i] = (uint16_t)L[2 * i] | ((uint16_t)L[2 * i + 1] << 8);
     }
 }
 
-//
 // Раунды: прямой и обратный
-//
-
 // Один раунд Mixing (4 шага), использует K[j .. j+3]
 static void mix_round(uint16_t *A, uint16_t *B, uint16_t *C, uint16_t *D,
                       const uint16_t *K, int j) {
@@ -207,4 +241,79 @@ int RC2_decrypt(const uint8_t *in, size_t len, long long key,
     size_t text_len = len - pad;
     out[text_len] = '\0';
     return (int)text_len;
+}
+
+int rc2_encrypt_cmd(const char *text) {
+    long long key = DIFFI_HELLMAN();
+
+    size_t text_len = strlen(text);
+    size_t out_size = text_len + 8; // С запасом под PKCS#7 паддинг
+    uint8_t *out = (uint8_t *)malloc(out_size);
+    if (!out) {
+        fprintf(stderr, "RC2: memory allocation failed\n");
+        return 4;
+    }
+
+    int n = RC2_encrypt(text, key, out, out_size);
+    if (n < 0) {
+        fprintf(stderr, "RC2: encryption failed\n");
+        free(out);
+        return 4;
+    }
+
+    printf("Key: %lld\n", key);
+    printf("Cipher: ");
+    for (int i = 0; i < n; i++) {
+        printf("%02X", out[i]);
+    }
+    printf("\n");
+
+    free(out);
+    return 0;
+}
+
+int rc2_decrypt_cmd(const char *prog, const char *key_str, const char *hex_str) {
+    char *endptr = NULL;
+    long long key = strtoll(key_str, &endptr, 10);
+    if (*endptr != '\0') {
+        fprintf(stderr, "%s: invalid key '%s'\n", prog, key_str);
+        return 2;
+    }
+
+    size_t hex_len = strlen(hex_str);
+    size_t cipher_max_len = hex_len / 2 + 1;
+    uint8_t *cipher = (uint8_t *)malloc(cipher_max_len);
+    if (!cipher) {
+        fprintf(stderr, "%s: memory allocation failed\n", prog);
+        return 2;
+    }
+
+    int n = hex_to_bytes(hex_str, cipher, cipher_max_len);
+    if (n <= 0 || n % 8 != 0) {
+        fprintf(stderr, "%s: cipher must be hex, length multiple of 16 chars\n", prog);
+        free(cipher);
+        return 2;
+    }
+
+    char *plain = (char *)malloc(n + 1);
+    if (!plain) {
+        fprintf(stderr, "%s: memory allocation failed\n", prog);
+        free(cipher);
+        return 4;
+    }
+
+    int m = RC2_decrypt(cipher, (size_t)n, key, plain, (size_t)(n + 1));
+    if (m < 0) {
+        fprintf(stderr, "%s: decryption failed (wrong key or corrupted data)\n", prog);
+        free(cipher);
+        free(plain);
+        return 4;
+    }
+
+    plain[m] = '\0';
+    printf("Decrypted: %s\n", plain);
+
+    free(cipher);
+    free(plain);
+    return 0;
 }

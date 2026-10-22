@@ -1,5 +1,4 @@
 #include <pthread.h>
-#include <stdio.h>
 #include "../include/globals.h"
 #include "../include/colorise.h"
 #include "../include/random.h"
@@ -20,7 +19,7 @@
 //     return result;
 // }
 
-// Алгоритм обмена ключами Диффи-Хеллмана (по примеру из задания)
+// Алгоритм обмена ключами Диффи-Хеллмана
 long long DIFFI_HELLMAN() {
     // 1. Публичные параметры: p - простое число, g - его примитивный элемент по модулю p
     long long p = 2147483647; //randInt();
@@ -31,12 +30,12 @@ long long DIFFI_HELLMAN() {
     long long b = randInt();  // секрет пользователя B
 
 
-    c_print_format("<yellow> Параметры Diffie-Hellman <reset>");
-    c_print_format("<cyan> Простое число (p): <reset> %lld", p);
-    c_print_format("<cyan> Примитивный элемент (g): <reset> %lld", g);
+    c_print_format("<cyan> Параметры Diffie-Hellman <reset>");
+    // c_print_format("<cyan> Простое число (p): <reset> %lld", p);
+    // c_print_format("<cyan> Примитивный элемент (g): <reset> %lld", g);
 
-    c_print_format("<magenta> Секрет пользователя A (a): <reset> %lld", a);
-    c_print_format("<magenta> Секрет пользователя B (b): <reset> %lld", b);
+    // c_print_format("<magenta> Секрет пользователя A (a): <reset> %lld", a);
+    // c_print_format("<magenta> Секрет пользователя B (b): <reset> %lld", b);
 
     // 3. Каждый пользователь вычисляет свой открытый (публичный) ключ
     long long A = pow_mod(g, a, p); // A = g^a mod p

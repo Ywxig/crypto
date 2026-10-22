@@ -45,6 +45,9 @@ int RC2_encrypt(const char *msg, long long key, uint8_t *out, size_t out_max);
 // Расшифровка. Возвращает длину текста или -1 (неверный ключ / битые данные).
 int RC2_decrypt(const uint8_t *in, size_t len, long long key, char *out, size_t out_max);
 
+int rc2_encrypt_cmd(const char *text);
+int rc2_decrypt_cmd(const char *prog, const char *key_str, const char *hex_str);
+
 // IDEA
 void idea_expand_key(const char* user_key, uint16_t* EK);
 

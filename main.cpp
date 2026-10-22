@@ -1,8 +1,5 @@
 #include <iostream>
 #include <string>
-#include <vector>
-#include <cstdio>
-#include <cstdint>
 
 #include "include/globals.h"
 #include "include/file.h"
@@ -52,59 +49,7 @@ static void print_usage(const char *prog) {
         " <yellow> -v <reset> Version info\n");
 }
 
-// ---------------------------------------------------------------------------
-// RC2
-// ---------------------------------------------------------------------------
-static int rc2_encrypt_cmd(const std::string &text) {
-    long long key = DIFFI_HELLMAN();
 
-    std::vector<uint8_t> out(text.size() + 8);
-    int n = RC2_encrypt(text.c_str(), key, out.data(), out.size());
-    if (n < 0) {
-        std::cerr << "RC2: encryption failed\n";
-        return 4;
-    }
-
-    std::cout << "Key: " << key << "\n";
-    std::cout << "Cipher: ";
-    for (int i = 0; i < n; i++) {
-        std::printf("%02X", out[i]);
-    }
-    std::cout << "\n";
-    return 0;
-}
-
-static int rc2_decrypt_cmd(const char *prog, const char *key_str, const char *hex_str) {
-    long long key = 0;
-    try {
-        key = std::stoll(key_str);
-    } catch (...) {
-        std::cerr << prog << ": invalid key '" << key_str << "'\n";
-        return 2;
-    }
-
-    std::string hex = hex_str;
-    std::vector<uint8_t> cipher(hex.size() / 2 + 1);
-    int n = hex_to_bytes(hex.c_str(), cipher.data(), cipher.size());
-    if (n <= 0 || n % 8 != 0) {
-        std::cerr << prog << ": cipher must be hex, length multiple of 16 chars\n";
-        return 2;
-    }
-
-    std::vector<char> plain(n + 1);
-    int m = RC2_decrypt(cipher.data(), (size_t)n, key, plain.data(), plain.size());
-    if (m < 0) {
-        std::cerr << prog << ": decryption failed (wrong key or corrupted data)\n";
-        return 4;
-    }
-
-    std::cout << "Decrypted: " << std::string(plain.data(), m) << "\n";
-    return 0;
-}
-
-// ---------------------------------------------------------------------------
-// main
-// ---------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         print_usage(argv[0]);
@@ -189,7 +134,7 @@ int main(int argc, char *argv[]) {
         DIFFI_HELLMAN();
     } else if (opt == "-Erc2") {
         // ./prog -Erc2 "message"
-        return rc2_encrypt_cmd(msg_str);
+        return rc2_encrypt_cmd(msg_str.c_str());
     } else if (opt == "-Drc2") {
         // ./prog -Drc2 <key> <cipher_hex>
         if (argc < 4) {
