@@ -37,6 +37,9 @@ void VGN_enc_seed(char *msg);
 long long DIFFI_HELLMAN();
 void DIFFI_HELLMAN_xor();
 
+// Прототип функции из DFHC.c
+long long DH_ELP_CURV();
+
 // RC2 (RC2.c)
 // Строка hex -> байты. Возвращает число байт или -1 при ошибке.
 int hex_to_bytes(const char *hex_str, uint8_t *out_buf, size_t out_max_len);

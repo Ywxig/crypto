@@ -132,6 +132,8 @@ int main(int argc, char *argv[]) {
         exit(0);
     } else if (opt == "-dfh") {
         DIFFI_HELLMAN();
+    } else if (opt == "-dfhc") {
+        DH_ELP_CURV();
     } else if (opt == "-Erc2") {
         // ./prog -Erc2 "message"
         return rc2_encrypt_cmd(msg_str.c_str());
