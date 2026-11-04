@@ -51,10 +51,13 @@ int RC2_decrypt(const uint8_t *in, size_t len, long long key, char *out, size_t 
 int rc2_encrypt_cmd(const char *text);
 int rc2_decrypt_cmd(const char *prog, const char *key_str, const char *hex_str);
 
-// IDEA
+// Прототипы из IDEA.c
 void idea_expand_key(const char* user_key, uint16_t* EK);
 
-void IDEA_encrypt(char* msg, char* key);
+int IDEA_encrypt_msg(const char *msg, long long key_val, uint8_t *out, size_t out_max);
+int IDEA_decrypt_msg(const uint8_t *in, size_t len, long long key_val, char *out, size_t out_max);
+int IDEA_encrypt_cmd(char *msg);
+int IDEA_decrypt_cmd(const char *prog, const char *key_str, const char *hex_str);
 
 #ifdef __cplusplus
 }

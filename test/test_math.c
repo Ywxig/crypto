@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <assert.h>
+#include <string.h>
 
 #include "../include/math_x.h"
 #include "../include/test_math.h"
+#include "../include/globals.h"
 #include "../include/colorise.h"
 
 
@@ -140,6 +142,23 @@ void test_pohlig_hellman(void) {
     c_print_format(" <green> -> Pohlig-Hellman: УСПЕШНО\n\n");
 }
 
+// void test_idea(void) {
+//     c_print_format(" <green> [9/9] <reset> Тестирование IDEA (шифрование/расшифрование)...\n");
+//     char msg[] = "testmsg";
+//     long long key = 123456789;
+//     uint8_t cipher[64];
+//     char plain[64];
+
+//     int n = IDEA_encrypt_msg(msg, key, cipher, sizeof(cipher));
+//     assert(n > 0);
+//     int m = IDEA_decrypt_msg(cipher, n, key, plain, sizeof(plain));
+
+//     c_print_format(" Исходный: %s | Расшифрованный: %s\n", msg, plain);
+//     assert(m > 0);
+//     assert(strcmp(msg, plain) == 0);
+//     c_print_format(" <green> -> IDEA: УСПЕШНО\n\n");
+// }
+
 int START_TEST(void) {
     printf("=========================================\n");
     printf("   Запуск тестов криптографических тем   \n");
@@ -153,6 +172,7 @@ int START_TEST(void) {
     test_mod_inverse();
     test_binary_gcd_inverse();
     test_pohlig_hellman();
+    // test_idea();
 
     printf("=========================================\n");
     printf("   ВСЕ ТЕСТЫ УСПЕШНО ПРОЙДЕНЫ!           \n");

@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
         VGN_decript(msg);
     } else if (opt == "-Evgns") {
         VGN_enc_seed(msg);
-    } else if (opt == "-GFm") {
+    }  else if (opt == "-GFm") {
         if (argc < 4) {
             std::cerr << echo("<red> " + (std::string)argv[0] + ": -GFm needs two arguments\n");
             exit(2);
@@ -145,9 +145,10 @@ int main(int argc, char *argv[]) {
         }
         return rc2_decrypt_cmd(argv[0], argv[2], argv[3]);
     } else if (opt == "-Eidea") {
-        long long key = DIFFI_HELLMAN();
-        IDEA_encrypt(msg, (char *)&key);
-    } else if (opt == "-I") {
+        return IDEA_encrypt_cmd(msg);
+    } else if (opt == "-Didea") {
+        return IDEA_decrypt_cmd(argv[0], argv[2], argv[3]);
+    }  else if (opt == "-I") {
         if (alg == "Idh") {
             DIFFI_HELLMAN();
         } else {
