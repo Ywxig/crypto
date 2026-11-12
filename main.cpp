@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <cstring>
 
 #include "include/globals.h"
 #include "include/file.h"
@@ -8,9 +9,15 @@
 
 #include "include/test_math.h"
 
-const char LETTERS[] = "abcdefghijklmnopqrstuvwxyz";
+const char LETTERS[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const char LETTERS2[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const char LETTERS3[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+
+// Разбор hex-ключа заданной длины
+static int parse_hex_key(const char *s, uint8_t *key, size_t len) {
+    if (!s || strlen(s) != len * 2) return -1;
+    return hex_to_bytes(s, key, len) == (int)len ? 0 : -1;
+}
 
 static void print_usage(const char *prog) {
     std::cout << echo(
@@ -41,6 +48,18 @@ static void print_usage(const char *prog) {
         " <yellow> -Dvgn <reset> Decrypt (Vigenere)\n"
         " <yellow> -Erc2 <reset> Encrypt (RC2): -Erc2 <message>\n"
         " <yellow> -Drc2 <reset> Decrypt (RC2): -Drc2 <key> <cipher_hex>\n"
+        " <yellow> -Eidea <reset> Encrypt (IDEA): -Eidea <message> [key_hex]\n"
+        " <yellow> -Didea <reset> Decrypt (IDEA): -Didea [key_hex] <cipher_hex>\n"
+        " <yellow> -Egost <reset> Encrypt (GOST): -Egost <message> [key_hex]\n"
+        " <yellow> -Dgost <reset> Decrypt (GOST): -Dgost [key_hex] <cipher_hex>\n"
+        " <yellow> -Eidea-ctr <reset> IDEA CTR: -Eidea-ctr <message> [key_hex]\n"
+        " <yellow> -Didea-ctr <reset> IDEA CTR: -Didea-ctr <iv_hex> <cipher_hex> [key_hex]\n"
+        " <yellow> -Egost-ctr <reset> GOST CTR: -Egost-ctr <message> [key_hex]\n"
+        " <yellow> -Dgost-ctr <reset> GOST CTR: -Dgost-ctr <iv_hex> <cipher_hex> [key_hex]\n"
+        " <yellow> -Mgost <reset> GOST MAC: -Mgost <message> [key_hex]\n"
+        " <yellow> -Ekuzy <reset> Encrypt (Kuznyechik): -Ekuzy <message> [key_hex]\n"
+        " <yellow> -Dkuzy <reset> Decrypt (Kuznyechik): -Dkuzy [key_hex] <cipher_hex>\n"
+        " <yellow> -avalanche <reset> Avalanche effect (IDEA/GOST/RC2)\n"
         " <yellow> -GFm <reset> GF(2) multiplication\n"
         " <yellow> -PEG <reset> Polynomial Extended GCD\n"
         " <yellow> -Tlog <reset> GF(2) multiplication table\n"
@@ -90,6 +109,10 @@ int main(int argc, char *argv[]) {
     else {
         if (opt == "-v") {
             std::cout << "v1.0.0\n";
+            exit(0);
+        }
+        if (opt == "-avalanche") {
+            avalanche_test();
             exit(0);
         }
         if (argc < 3) {
@@ -145,9 +168,119 @@ int main(int argc, char *argv[]) {
         }
         return rc2_decrypt_cmd(argv[0], argv[2], argv[3]);
     } else if (opt == "-Eidea") {
-        return IDEA_encrypt_cmd(msg);
+        uint8_t key[16];
+        memcpy(key, idea_default_key, sizeof(key));
+        if (argc >= 4 && parse_hex_key(argv[3], key, sizeof(key)) != 0) {
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": IDEA key must be 32 hex chars\n");
+            exit(2);
+        }
+        return IDEA_encrypt_cmd(msg, key);
     } else if (opt == "-Didea") {
-        return IDEA_decrypt_cmd(argv[0], argv[2], argv[3]);
+        uint8_t key[16];
+        const char *cipher_hex;
+        memcpy(key, idea_default_key, sizeof(key));
+        if (argc >= 4) {
+            if (parse_hex_key(argv[2], key, sizeof(key)) != 0) {
+                std::cerr << echo("<red> " + (std::string)argv[0] + ": IDEA key must be 32 hex chars\n");
+                exit(2);
+            }
+            cipher_hex = argv[3];
+        } else {
+            cipher_hex = argv[2];
+        }
+        return IDEA_decrypt_cmd(argv[0], key, cipher_hex);
+    } else if (opt == "-Egost") {
+        uint8_t key[32];
+        memcpy(key, gost_default_key, sizeof(key));
+        if (argc >= 4 && parse_hex_key(argv[3], key, sizeof(key)) != 0) {
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": GOST key must be 64 hex chars\n");
+            exit(2);
+        }
+        return GOST_encrypt_cmd(msg, key);
+    } else if (opt == "-Dgost") {
+        uint8_t key[32];
+        const char *cipher_hex;
+        memcpy(key, gost_default_key, sizeof(key));
+        if (argc >= 4) {
+            if (parse_hex_key(argv[2], key, sizeof(key)) != 0) {
+                std::cerr << echo("<red> " + (std::string)argv[0] + ": GOST key must be 64 hex chars\n");
+                exit(2);
+            }
+            cipher_hex = argv[3];
+        } else {
+            cipher_hex = argv[2];
+        }
+        return GOST_decrypt_cmd(argv[0], key, cipher_hex);
+    } else if (opt == "-Eidea-ctr") {
+        uint8_t key[16];
+        memcpy(key, idea_default_key, sizeof(key));
+        if (argc >= 4 && parse_hex_key(argv[3], key, sizeof(key)) != 0) {
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": IDEA key must be 32 hex chars\n");
+            exit(2);
+        }
+        return IDEA_ctr_encrypt_cmd(msg, key);
+    } else if (opt == "-Didea-ctr") {
+        uint8_t key[16];
+        memcpy(key, idea_default_key, sizeof(key));
+        if (argc < 4) {
+            std::cerr << "Usage: " << argv[0] << " -Didea-ctr <iv_hex> <cipher_hex> [key_hex]\n";
+            exit(2);
+        }
+        if (argc >= 5 && parse_hex_key(argv[4], key, sizeof(key)) != 0) {
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": IDEA key must be 32 hex chars\n");
+            exit(2);
+        }
+        return IDEA_ctr_decrypt_cmd(argv[0], key, argv[2], argv[3]);
+    } else if (opt == "-Egost-ctr") {
+        uint8_t key[32];
+        memcpy(key, gost_default_key, sizeof(key));
+        if (argc >= 4 && parse_hex_key(argv[3], key, sizeof(key)) != 0) {
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": GOST key must be 64 hex chars\n");
+            exit(2);
+        }
+        return GOST_ctr_encrypt_cmd(msg, key);
+    } else if (opt == "-Dgost-ctr") {
+        uint8_t key[32];
+        memcpy(key, gost_default_key, sizeof(key));
+        if (argc < 4) {
+            std::cerr << "Usage: " << argv[0] << " -Dgost-ctr <iv_hex> <cipher_hex> [key_hex]\n";
+            exit(2);
+        }
+        if (argc >= 5 && parse_hex_key(argv[4], key, sizeof(key)) != 0) {
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": GOST key must be 64 hex chars\n");
+            exit(2);
+        }
+        return GOST_ctr_decrypt_cmd(argv[0], key, argv[2], argv[3]);
+    } else if (opt == "-Mgost") {
+        uint8_t key[32];
+        memcpy(key, gost_default_key, sizeof(key));
+        if (argc >= 4 && parse_hex_key(argv[3], key, sizeof(key)) != 0) {
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": GOST key must be 64 hex chars\n");
+            exit(2);
+        }
+        return GOST_mac_cmd(msg, key);
+    } else if (opt == "-Ekuzy") {
+        uint8_t key[32];
+        memcpy(key, kuznyechik_default_key, sizeof(key));
+        if (argc >= 4 && parse_hex_key(argv[3], key, sizeof(key)) != 0) {
+            std::cerr << echo("<red> " + (std::string)argv[0] + ": Kuznyechik key must be 64 hex chars\n");
+            exit(2);
+        }
+        return kuznyechik_encrypt_cmd(msg, key);
+    } else if (opt == "-Dkuzy") {
+        uint8_t key[32];
+        const char *cipher_hex;
+        memcpy(key, kuznyechik_default_key, sizeof(key));
+        if (argc >= 4) {
+            if (parse_hex_key(argv[2], key, sizeof(key)) != 0) {
+                std::cerr << echo("<red> " + (std::string)argv[0] + ": Kuznyechik key must be 64 hex chars\n");
+                exit(2);
+            }
+            cipher_hex = argv[3];
+        } else {
+            cipher_hex = argv[2];
+        }
+        return kuznyechik_decrypt_cmd(argv[0], key, cipher_hex);
     }  else if (opt == "-I") {
         if (alg == "Idh") {
             DIFFI_HELLMAN();

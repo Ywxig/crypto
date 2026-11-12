@@ -172,7 +172,7 @@ int START_TEST(void) {
     test_mod_inverse();
     test_binary_gcd_inverse();
     test_pohlig_hellman();
-    // test_idea();
+    test_lab03();
 
     printf("=========================================\n");
     printf("   ВСЕ ТЕСТЫ УСПЕШНО ПРОЙДЕНЫ!           \n");

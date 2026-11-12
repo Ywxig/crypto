@@ -12,7 +12,7 @@ LIB_CRYPTO = dist/libcrypto.a
 LIB_MATH = dist/libmath.a
 
 # Исходные файлы
-ALGO_SRCS = src/CSR.c src/CSK.c src/VGN.c src/DFH.c src/DFH_xor.c src/IDEA.c src/RC2.c src/DFHC.c
+ALGO_SRCS = src/CSR.c src/CSK.c src/VGN.c src/DFH.c src/DFH_xor.c src/idea.c src/gost.c src/kuznyechik.c src/avalanche.c src/RC2.c src/DFHC.c
 MATH_SRCS = lib/math_x.c lib/table_log.c lib/ext_gcd.c
 HELPERS_C = helpers/randonm.c
 HELPERS_CPP = helpers/file.cpp helpers/utils.cpp helpers/colorise.cpp
@@ -26,7 +26,7 @@ HELPERS_CPP_OBJS = $(HELPERS_CPP:.cpp=.o)
 ALL_OBJS = $(ALGO_OBJS) $(MATH_OBJS) $(HELPERS_C_OBJS) $(HELPERS_CPP_OBJS)
 
 MAIN_SRC = main.cpp
-TEST_SRC = test/test_math.c
+TEST_SRC = test/test_math.c test/test_lab03.c
 
 .PHONY: all clean run lib
 

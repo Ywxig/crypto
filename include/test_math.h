@@ -10,6 +10,7 @@ void test_galois_field(void);
 void test_modular_exponentiation(void);
 void test_modular_inverse(void);
 void test_discrete_logarithm(void);
+void test_lab03(void);
 
 #ifdef __cplusplus
 }
