@@ -11,6 +11,11 @@ TARGET = dist/crypto
 LIB_CRYPTO = dist/libcrypto.a
 LIB_MATH = dist/libmath.a
 
+# Динамическая (разделяемая) библиотека
+SHARED_LIB = dist/libcrypto.so
+SHARED_SONAME = libcrypto.so
+PIC_DIR = build/pic
+
 # Исходные файлы
 ALGO_SRCS = src/CSR.c src/CSK.c src/VGN.c src/DFH.c src/DFH_xor.c src/idea.c src/gost.c src/kuznyechik.c src/avalanche.c src/RC2.c src/DFHC.c
 MATH_SRCS = lib/math_x.c lib/table_log.c lib/ext_gcd.c
@@ -25,10 +30,15 @@ HELPERS_CPP_OBJS = $(HELPERS_CPP:.cpp=.o)
 
 ALL_OBJS = $(ALGO_OBJS) $(MATH_OBJS) $(HELPERS_C_OBJS) $(HELPERS_CPP_OBJS)
 
+# Исходники, входящие в динамическую библиотеку (без main.cpp и тестов)
+SHARED_SRCS = $(ALGO_SRCS) $(MATH_SRCS) $(HELPERS_C) $(HELPERS_CPP) src/alphabet.c
+SHARED_OBJS = $(addprefix $(PIC_DIR)/,$(SHARED_SRCS:.c=.o))
+SHARED_OBJS := $(SHARED_OBJS:.cpp=.o)
+
 MAIN_SRC = main.cpp
 TEST_SRC = test/test_math.c test/test_lab03.c
 
-.PHONY: all clean run lib
+.PHONY: all clean run lib shared
 
 all: $(TARGET)
 
@@ -51,6 +61,22 @@ $(LIB_CRYPTO): $(ALGO_OBJS) $(HELPERS_C_OBJS) $(HELPERS_CPP_OBJS) $(LIB_MATH)
 
 lib: $(LIB_MATH) $(LIB_CRYPTO)
 
+# PIC-объекты для динамической библиотеки
+$(PIC_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+
+$(PIC_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -fPIC -c $< -o $@
+
+# Динамическая библиотека: все алгоритмы, математика и хелперы
+$(SHARED_LIB): $(SHARED_OBJS)
+	@mkdir -p dist
+	$(CXX) -shared -Wl,-soname,$(SHARED_SONAME) -o $@ $(SHARED_OBJS)
+
+shared: $(SHARED_LIB)
+
 # Сборка финального бинарника с использованием обеих библиотек и тестов
 $(TARGET): $(LIB_MATH) $(LIB_CRYPTO) $(MAIN_SRC) $(TEST_SRC)
 	@mkdir -p dist
@@ -59,6 +85,7 @@ $(TARGET): $(LIB_MATH) $(LIB_CRYPTO) $(MAIN_SRC) $(TEST_SRC)
 
 clean:
 	rm -rf dist
+	rm -rf build
 	rm -f src/*.o lib/*.o helpers/*.o
 
 run: all

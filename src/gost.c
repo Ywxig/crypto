@@ -136,9 +136,9 @@ void GOST_decrypt(const uint32_t K[8], uint8_t data[8]) {
     store32be(data + 4, &l, 1);
 }
 
-/* ------------------------------------------------------------------------- */
+
 /* PKCS#7 (общие функции для ГОСТ и IDEA)                                    */
-/* ------------------------------------------------------------------------- */
+
 
 size_t pkcs7_pad(uint8_t *buf, size_t len, size_t block, size_t max_len) {
     size_t pad = block - (len % block);
@@ -169,9 +169,9 @@ int pkcs7_unpad(uint8_t *buf, size_t len, size_t block) {
     return (int)(len - pad);
 }
 
-/* ------------------------------------------------------------------------- */
+
 /* Режимы работы                                                             */
-/* ------------------------------------------------------------------------- */
+
 
 int gost_encrypt_msg(const uint8_t key[32], const char *msg,
                      uint8_t *out, size_t out_max) {
@@ -287,9 +287,9 @@ uint32_t gost_mac(const uint8_t key[32], const uint8_t *data, size_t len) {
     return n1;
 }
 
-/* ------------------------------------------------------------------------- */
+
 /* Команды для main.c                                                        */
-/* ------------------------------------------------------------------------- */
+
 
 int GOST_encrypt_cmd(const char *msg, const uint8_t key[32]) {
     size_t len = strlen(msg);
